@@ -1,0 +1,73 @@
+<!-- notes.component.html -->
+<div class="container">
+  <h2 class="title">
+    <span>📒</span>
+    Smart Notes
+  </h2>
+
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-number">{{ notes.length }}</div>
+      <div class="stat-label">Total Notes</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">{{ getTotalCharacters() | number }}</div>
+      <div class="stat-label">Characters</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">💡</div>
+      <div class="stat-label">Ideas Captured</div>
+    </div>
+  </div>
+
+  <div class="input-section">
+    <input 
+      [(ngModel)]="noteTitle" 
+      placeholder="✨ What's on your mind?" 
+      class="input-field"
+      #titleInput>
+    
+    <textarea 
+      [(ngModel)]="noteText" 
+      placeholder="Write your brilliant thoughts here... 🧠💭" 
+      class="textarea"
+      #textInput></textarea>
+    
+    <button 
+      (click)="addNote()" 
+      class="button"
+      [disabled]="!noteTitle.trim() && !noteText.trim()">
+      🎯 Capture Idea
+    </button>
+    
+    <div class="keyboard-hint">
+      <small>💡 Pro tip: Press <kbd>Ctrl + Enter</kbd> to quickly add notes!</small>
+    </div>
+  </div>
+
+  <ul class="paste-list" *ngIf="notes.length > 0">
+    <li *ngFor="let note of notes; trackBy: trackByNoteId" class="paste-item">
+      <div>
+        <strong>📌 {{ note.title }}</strong>
+        <div class="timestamp">
+          ⏰ {{ note.timestamp }}
+        </div>
+        <div class="note-text">{{ note.text }}</div>
+      </div>
+      <div class="actions">
+        <button 
+          (click)="deleteNote(note.id)" 
+          class="delete-btn"
+          title="Delete note">
+          🗑️ Delete
+        </button>
+      </div>
+    </li>
+  </ul>
+
+  <div *ngIf="notes.length === 0" class="empty-state">
+    <span class="emoji">🤔</span>
+    <h3>No notes yet!</h3>
+    <p>Start capturing your brilliant ideas above</p>
+  </div>
+</div>

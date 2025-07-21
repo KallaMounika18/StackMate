@@ -1,0 +1,50 @@
+<!-- app.component.html -->
+<div class="app-container" [attr.data-theme]="themeService.currentTheme">
+  <div class="floating-elements">
+    <div class="floating-element" *ngFor="let i of [1,2,3,4,5,6,7,8,9]; index as idx" 
+         [style.left.%]="(idx + 1) * 10" 
+         [style.animation-delay.s]="idx * 0.5"></div>
+  </div>
+
+  <header class="app-header">
+    <div class="header-content">
+      <h1>{{ title }}</h1>
+      <div class="subtitle">{{ subtitle }}</div>
+    </div>
+    
+    <button class="theme-toggle" (click)="toggleTheme()" [title]="'Switch to ' + (themeService.currentTheme === 'dark' ? 'light' : 'dark') + ' theme'">
+      <span class="theme-icon">{{ themeService.currentTheme === 'dark' ? '☀️' : '🌙' }}</span>
+      <span class="theme-text">{{ themeService.currentTheme === 'dark' ? 'Light' : 'Dark' }}</span>
+    </button>
+  </header>
+
+  <div class="main-content">
+    <nav class="sidebar">
+      <div class="nav-title">✨ Navigation</div>
+      <a routerLink="/pastebin" routerLinkActive="active" class="nav-link">
+        <span class="emoji">📝</span>
+        <span>PasteBin</span>
+      </a>
+      <a routerLink="/notes" routerLinkActive="active" class="nav-link">
+        <span class="emoji">📒</span>
+        <span>Notes</span>
+      </a>
+      <a routerLink="/code-comparator" routerLinkActive="active" class="nav-link">
+        <span class="emoji">🖊️</span>
+        <span>Code Comparator</span>
+      </a>
+      <a routerLink="/json-regex-tools" routerLinkActive="active" class="nav-link">
+        <span class="emoji">🧹</span>
+        <span>Json Regex Tools</span>
+      </a>
+      <a routerLink="/timestamp-uuid-tools" routerLinkActive="active" class="nav-link">
+        <span class="emoji">🕒</span>
+        <span>Timestamp-UUID Tools</span>
+      </a>
+    </nav>
+
+    <section class="content">
+      <router-outlet></router-outlet>
+    </section>
+  </div>
+</div>

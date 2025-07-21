@@ -1,0 +1,166 @@
+.container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 1rem;
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+
+  .header {
+    text-align: center;
+    margin-bottom: 2rem;
+
+    .title {
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: #777;
+    }
+  }
+
+  .stats-bar {
+    display: flex;
+    justify-content: space-evenly;
+    margin-bottom: 1.5rem;
+
+    .stat {
+      text-align: center;
+
+      .stat-number {
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        color: #666;
+      }
+    }
+  }
+
+  .input-section {
+    display: flex;
+    gap: 2rem;
+
+    .code-panel {
+      flex: 1;
+
+      .panel-title {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .code-textarea {
+        width: 100%;
+        height: 300px;
+        font-family: monospace;
+        font-size: 0.95rem;
+        padding: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        resize: vertical;
+      }
+    }
+  }
+
+  .action-bar {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+
+    .btn {
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+
+      &.btn-primary {
+        background-color: #007bff;
+        color: white;
+      }
+
+      &.btn-secondary {
+        background-color: #e0e0e0;
+        color: #333;
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .diff-container {
+    margin-top: 2rem;
+
+    .diff-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .diff-title {
+        font-size: 1.5rem;
+      }
+
+      .collapse-toggle {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.8rem;
+        background-color: #f2f2f2;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+    }
+
+    .diff-viewer {
+      display: flex;
+      gap: 2rem;
+      margin-top: 1rem;
+
+      .diff-side {
+        flex: 1;
+        background: #fafafa;
+        border: 1px solid #ccc;
+        padding: 1rem;
+        border-radius: 5px;
+        overflow-x: auto;
+        max-height: 400px;
+
+        h4 {
+          margin-bottom: 1rem;
+          font-weight: 600;
+        }
+
+        div {
+          white-space: pre-wrap;
+          font-family: monospace;
+        }
+      }
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    margin-top: 2rem;
+
+    .emoji {
+      font-size: 2.5rem;
+    }
+
+    h3 {
+      margin: 0.5rem 0;
+    }
+
+    p {
+      color: #666;
+    }
+  }
+}

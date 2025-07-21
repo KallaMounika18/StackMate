@@ -1,0 +1,73 @@
+<!-- code-comparator.component.html -->
+<div class="container">
+  <div class="header">
+    <h1 class="title">
+      <span>🔍</span>
+      Enhanced Code Comparator
+    </h1>
+    <p class="subtitle">Advanced side-by-side code comparison with intelligent diffing</p>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-number">{{ leftLineCount }}</div>
+      <div class="stat-label">Original Lines</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">{{ rightLineCount }}</div>
+      <div class="stat-label">Modified Lines</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">{{ diffCount }}</div>
+      <div class="stat-label">Differences</div>
+    </div>
+  </div>
+
+  <div class="input-section">
+    <div class="code-panel">
+      <h3 class="panel-title">📄 Original Code</h3>
+      <textarea [(ngModel)]="leftCode" (input)="onCodeChange()" class="code-textarea" placeholder="Paste your original code here..."></textarea>
+    </div>
+    <div class="code-panel">
+      <h3 class="panel-title">✨ Modified Code</h3>
+      <textarea [(ngModel)]="rightCode" (input)="onCodeChange()" class="code-textarea" placeholder="Paste your modified code here..."></textarea>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <button class="btn btn-primary" (click)="compareCode()" [disabled]="!canCompare">
+      🔍 Compare Code
+    </button>
+    <button class="btn btn-secondary" (click)="clearAll()">
+      🧹 Clear All
+    </button>
+    <button class="btn btn-secondary" (click)="swapCode()" [disabled]="!hasAnyCode">
+      🔄 Swap Sides
+    </button>
+  </div>
+
+  <div *ngIf="showResults" class="diff-container">
+    <div class="diff-header">
+      <h3 class="diff-title">🎯 Comparison Results</h3>
+      <button class="btn btn-primary collapse-toggle" (click)="toggleCollapse()">
+        {{ hideUnchanged ? 'Show All Lines' : 'Hide Unchanged Lines' }}
+      </button>
+    </div>
+    <div class="diff-viewer">
+      <div class="diff-side">
+        <h4>📄 Original</h4>
+        <div [innerHTML]="leftDiffHtml"></div>
+      </div>
+      <div class="diff-side">
+        <h4>✨ Modified</h4>
+        <div [innerHTML]="rightDiffHtml"></div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!showResults" class="empty-state">
+    <span class="emoji">🔍</span>
+    <h3>Ready to compare!</h3>
+    <p>Add code to both sections to see the differences</p>
+  </div>
+</div>

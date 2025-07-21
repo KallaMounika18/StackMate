@@ -1,0 +1,166 @@
+<div class="container">
+      <h2 class="title">
+        <span>🧹</span>
+        JSON & Regex Tools
+      </h2>
+
+      <div class="tools-nav">
+        <button 
+          (click)="activeTab = 'json'" 
+          class="tab-btn"
+          [class.active]="activeTab === 'json'">
+          📋 JSON Formatter
+        </button>
+        <button 
+          (click)="activeTab = 'regex'" 
+          class="tab-btn"
+          [class.active]="activeTab === 'regex'">
+          🔍 Regex Tester
+        </button>
+      </div>
+
+      <!-- JSON Formatter Tab -->
+      <div *ngIf="activeTab === 'json'" class="tool-section">
+        <div class="stats-bar">
+          <div class="stat">
+            <div class="stat-number">{{ getJsonStats().characters }}</div>
+            <div class="stat-label">Characters</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number">{{ getJsonStats().lines }}</div>
+            <div class="stat-label">Lines</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number">{{ jsonValid ? '✅' : '❌' }}</div>
+            <div class="stat-label">Valid JSON</div>
+          </div>
+        </div>
+
+        <div class="input-section">
+          <h3 class="section-title">📝 Input JSON</h3>
+          <textarea 
+            [(ngModel)]="jsonInput" 
+            placeholder='Paste your JSON here... {"example": "data"}'
+            class="code-textarea"
+            (input)="formatJson()"></textarea>
+        </div>
+
+        <div class="action-buttons">
+          <button 
+            (click)="formatJson()" 
+            class="button primary-btn"
+            [disabled]="!jsonInput.trim()">
+            ✨ Format JSON
+          </button>
+          <button 
+            (click)="minifyJson()" 
+            class="button secondary-btn"
+            [disabled]="!jsonInput.trim()">
+            🗜️ Minify
+          </button>
+          <button 
+            (click)="copyJsonResult()" 
+            class="button secondary-btn"
+            [disabled]="!jsonOutput">
+            📋 Copy Result
+          </button>
+        </div>
+
+        <div *ngIf="jsonError" class="error-message">
+          ❌ JSON Error: {{ jsonError }}
+        </div>
+
+        <div *ngIf="jsonOutput" class="output-section">
+          <h3 class="section-title">✨ Formatted Result</h3>
+          <pre class="json-output">{{ jsonOutput }}</pre>
+        </div>
+      </div>
+
+      <!-- Regex Tester Tab -->
+      <div *ngIf="activeTab === 'regex'" class="tool-section">
+        <div class="stats-bar">
+          <div class="stat">
+            <div class="stat-number">{{ regexMatches.length }}</div>
+            <div class="stat-label">Matches Found</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number">{{ testString.length }}</div>
+            <div class="stat-label">Test String Length</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number">{{ regexValid ? '✅' : '❌' }}</div>
+            <div class="stat-label">Valid Regex</div>
+          </div>
+        </div>
+
+        <div class="regex-inputs">
+          <div class="input-group">
+            <label class="input-label">🎯 Regex Pattern</label>
+            <input 
+              [(ngModel)]="regexPattern" 
+              placeholder="Enter regex pattern... e.g., \d+|\w+@\w+\.\w+"
+              class="input-field regex-input"
+              (input)="testRegex()">
+          </div>
+
+          <div class="input-group">
+            <label class="input-label">🏁 Flags</label>
+            <div class="flags-container">
+              <label class="flag-label">
+                <input type="checkbox" [(ngModel)]="flags.global" (change)="testRegex()"> g (global)
+              </label>
+              <label class="flag-label">
+                <input type="checkbox" [(ngModel)]="flags.ignoreCase" (change)="testRegex()"> i (ignore case)
+              </label>
+              <label class="flag-label">
+                <input type="checkbox" [(ngModel)]="flags.multiline" (change)="testRegex()"> m (multiline)
+              </label>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label class="input-label">📝 Test String</label>
+            <textarea 
+              [(ngModel)]="testString" 
+              placeholder="Enter text to test against your regex..."
+              class="textarea"
+              (input)="testRegex()"></textarea>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button 
+            (click)="testRegex()" 
+            class="button primary-btn"
+            [disabled]="!regexPattern.trim() || !testString.trim()">
+            🔍 Test Regex
+          </button>
+          <button 
+            (click)="clearRegex()" 
+            class="button secondary-btn">
+            🧹 Clear All
+          </button>
+        </div>
+
+        <div *ngIf="regexError" class="error-message">
+          ❌ Regex Error: {{ regexError }}
+        </div>
+
+        <div *ngIf="regexMatches.length > 0" class="matches-section">
+          <h3 class="section-title">🎯 Matches ({{ regexMatches.length }})</h3>
+          <div class="matches-list">
+            <div *ngFor="let match of regexMatches; trackBy: trackByIndex" class="match-item">
+              <div class="match-content">{{ match.match }}</div>
+              <div class="match-info">
+                Position: {{ match.index }} | Length: {{ match.match.length }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="regexPattern && testString && regexMatches.length === 0 && !regexError" class="no-matches">
+          <span class="emoji">🤷‍♂️</span>
+          <p>No matches found!</p>
+        </div>
+      </div>
+</div>
