@@ -36,7 +36,8 @@
       </div>
     </div>
 
-    <div class="converter-section" style="margin-bottom: 3rem">
+    <div class="converters-row">
+       <div class="converter-section" style="margin-bottom: 3rem">
       <h3 class="section-title" style="margin-bottom: 1.5rem">🔄 Epoch to Date Converter</h3>
       <div class="conversion-row">
         <div class="input-group">
@@ -58,27 +59,28 @@
             readonly>
         </div>
       </div>
-    </div>
+       </div>
 
-    <div class="converter-section" style="margin-bottom: 3rem">
-      <h3 class="section-title" style="margin-bottom: 1.5rem">🔄 Date to Epoch Converter</h3>
-      <div class="conversion-row">
-        <div class="input-group">
-          <label class="input-label">📅 Date & Time</label>
-          <input 
-            type="datetime-local" 
-            [(ngModel)]="dateInput" 
-            class="input-field fixed-width"
-            (change)="convertDateToEpoch()">
-        </div>
-        <div class="conversion-arrow">→</div>
-        <div class="result-group">
-          <label class="input-label">⏰ Epoch Timestamp</label>
-          <input 
-            type="text"
-            class="input-field fixed-width"
-            [value]="dateToEpochResult || 'Select date & time'"
-            readonly>
+      <div class="converter-section" style="margin-bottom: 3rem">
+        <h3 class="section-title" style="margin-bottom: 1.5rem">🔄 Date to Epoch Converter</h3>
+        <div class="conversion-row">
+          <div class="input-group">
+            <label class="input-label">📅 Date & Time</label>
+            <input 
+              type="datetime-local" 
+              [(ngModel)]="dateInput" 
+              class="input-field fixed-width"
+              (change)="convertDateToEpoch()">
+          </div>
+          <div class="conversion-arrow">→</div>
+          <div class="result-group">
+            <label class="input-label">⏰ Epoch Timestamp</label>
+            <input 
+              type="text"
+              class="input-field fixed-width"
+              [value]="dateToEpochResult || 'Select date & time'"
+              readonly>
+          </div>
         </div>
       </div>
     </div>

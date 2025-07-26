@@ -1,8 +1,8 @@
-// pastebin.component.ts
 import { Component, OnInit, HostListener } from '@angular/core';
+import { v4 as uuidv4 } from 'uuid';
 
 interface Paste {
-  id: number;
+  id: string;
   text: string;
   timestamp: string;
   lines: number;
@@ -17,23 +17,21 @@ interface Paste {
 export class PastebinComponent implements OnInit {
   pasteText: string = '';
   pastes: Paste[] = [];
-
-  constructor() { }
+  baseUrl: string = window.location.origin;
 
   ngOnInit(): void {
     this.loadPastes();
   }
 
   addPaste(): void {
-    if (!this.pasteText.trim()) {
-      return;
-    }
+    if (!this.pasteText.trim()) return;
 
+    const id = uuidv4();
     const paste: Paste = {
-      id: Date.now(),
+      id,
       text: this.pasteText.trim(),
       timestamp: new Date().toLocaleString(),
-      lines: this.pasteText.split('\n').length,
+      lines: this.pasteText.trim().split('\n').length,
       language: this.detectLanguage(this.pasteText)
     };
 
@@ -42,7 +40,7 @@ export class PastebinComponent implements OnInit {
     this.clearInput();
   }
 
-  deletePaste(id: number): void {
+  deletePaste(id: string): void {
     this.pastes = this.pastes.filter(paste => paste.id !== id);
     this.savePastes();
   }
@@ -56,15 +54,17 @@ export class PastebinComponent implements OnInit {
   }
 
   copyToClipboard(text: string): void {
-    navigator.clipboard.writeText(text).then(() => {
-      // You could add a toast notification here
-      console.log('Copied to clipboard!');
-    });
+    navigator.clipboard.writeText(text);
+  }
+
+  copyShareLink(id: string): void {
+    const link = `${this.baseUrl}/share/${id}`;
+    navigator.clipboard.writeText(link);
+    alert('🔗 Shareable link copied!');
   }
 
   private detectLanguage(text: string): string {
-    // Simple language detection based on common patterns
-    if (text.includes('function') && text.includes('{')) return 'JavaScript';
+    if (text.includes('function')) return 'JavaScript';
     if (text.includes('def ') || text.includes('import ')) return 'Python';
     if (text.includes('<') && text.includes('>')) return 'HTML/XML';
     if (text.includes('class ') && text.includes('public')) return 'Java/C#';
@@ -74,24 +74,16 @@ export class PastebinComponent implements OnInit {
   }
 
   private savePastes(): void {
-    localStorage.setItem('devnotes_pastes', JSON.stringify(this.pastes));
+    localStorage.setItem('stackmate_pastes', JSON.stringify(this.pastes));
   }
 
   private loadPastes(): void {
-    const saved = localStorage.getItem('devnotes_pastes');
-    if (saved) {
-      this.pastes = JSON.parse(saved);
-    }
-  }
-
-  trackByPasteId(index: number, paste: Paste): number {
-    return paste.id;
+    const saved = localStorage.getItem('stackmate_pastes');
+    if (saved) this.pastes = JSON.parse(saved);
   }
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent): void {
-    if (event.ctrlKey && event.key === 'Enter') {
-      this.addPaste();
-    }
+    if (event.ctrlKey && event.key === 'Enter') this.addPaste();
   }
 }

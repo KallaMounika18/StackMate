@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-json-regex-tools',
   templateUrl: './json-regex-tools.component.html',
+  styleUrls: ['./json-regex-tools.component.scss']
 })
 export class JsonRegexToolsComponent {
   activeTab: 'json' | 'regex' = 'json';

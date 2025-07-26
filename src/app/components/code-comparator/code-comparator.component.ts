@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import * as Diff from 'diff';
+import { diffLines } from 'diff';
 
 @Component({
   selector: 'app-code-comparator',
   templateUrl: './code-comparator.component.html',
-  styleUrls: ['./code-comparator.component.scss'],
+  styleUrls: ['./code-comparator.component.scss']
 })
 export class CodeComparatorComponent {
   leftCode: string = '';
@@ -12,58 +12,46 @@ export class CodeComparatorComponent {
   leftDiffHtml: string = '';
   rightDiffHtml: string = '';
   showResults: boolean = false;
-  hideUnchanged: boolean = false;
-
+  diffCount: number = 0;
   leftLineCount: number = 0;
   rightLineCount: number = 0;
-  diffCount: number = 0;
-
-  get canCompare(): boolean {
-    return this.leftCode.trim() !== '' && this.rightCode.trim() !== '';
-  }
-
-  get hasAnyCode(): boolean {
-    return this.leftCode.trim() !== '' || this.rightCode.trim() !== '';
-  }
-
-  onCodeChange() {
-    this.leftLineCount = this.leftCode.split('\n').length;
-    this.rightLineCount = this.rightCode.split('\n').length;
-  }
+  hideUnchanged: boolean = false;
 
   compareCode() {
-    const leftLines = this.leftCode.split('\n');
-    const rightLines = this.rightCode.split('\n');
-    const diff = Diff.diffLines(this.leftCode, this.rightCode);
-
+    const diffs = diffLines(this.leftCode, this.rightCode);
     let leftHtml = '';
     let rightHtml = '';
-    let diffs = 0;
+    let count = 0;
 
-    diff.forEach((part) => {
-      const escaped = part.value.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    diffs.forEach(part => {
+      const escapedValue = part.value.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
       if (part.added) {
-        rightHtml += `<div style="background-color:#d4edda;">+ ${escaped}</div>`;
-        diffs++;
+        count++;
+        rightHtml += `<div class="line line-added">+ ${escapedValue}</div>`;
       } else if (part.removed) {
-        leftHtml += `<div style="background-color:#f8d7da;">- ${escaped}</div>`;
-        diffs++;
+        count++;
+        leftHtml += `<div class="line line-removed">- ${escapedValue}</div>`;
       } else {
+        const line = `<div class="line">${escapedValue}</div>`;
         if (!this.hideUnchanged) {
-          const lines = escaped.split('\n');
-          lines.forEach((line) => {
-            leftHtml += `<div>${line}</div>`;
-            rightHtml += `<div>${line}</div>`;
-          });
+          leftHtml += line;
+          rightHtml += line;
         }
       }
     });
 
-    this.diffCount = diffs;
     this.leftDiffHtml = leftHtml;
     this.rightDiffHtml = rightHtml;
     this.showResults = true;
+    this.diffCount = count;
+    this.leftLineCount = this.leftCode.split('\n').length;
+    this.rightLineCount = this.rightCode.split('\n').length;
+  }
+
+  toggleCollapse() {
+    this.hideUnchanged = !this.hideUnchanged;
+    this.compareCode(); // re-render with toggle applied
   }
 
   clearAll() {
@@ -71,20 +59,20 @@ export class CodeComparatorComponent {
     this.rightCode = '';
     this.leftDiffHtml = '';
     this.rightDiffHtml = '';
-    this.showResults = false;
     this.diffCount = 0;
-    this.leftLineCount = 0;
-    this.rightLineCount = 0;
+    this.showResults = false;
   }
 
   swapCode() {
     [this.leftCode, this.rightCode] = [this.rightCode, this.leftCode];
-    this.onCodeChange();
-    this.showResults = false;
+    this.compareCode();
   }
 
-  toggleCollapse() {
-    this.hideUnchanged = !this.hideUnchanged;
-    this.compareCode();
+  get canCompare(): boolean {
+    return this.leftCode.trim().length > 0 && this.rightCode.trim().length > 0;
+  }
+
+  get hasAnyCode(): boolean {
+    return this.leftCode.trim().length > 0 || this.rightCode.trim().length > 0;
   }
 }

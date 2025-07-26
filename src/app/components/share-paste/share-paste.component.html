@@ -1,0 +1,11 @@
+<div class="shared-snippet" *ngIf="snippet; else notFound">
+  <h2>📤 Shared Code Snippet</h2>
+  <p><strong>Language:</strong> {{ snippet.language }}</p>
+  <p><strong>Lines:</strong> {{ snippet.lines }}</p>
+  <p><strong>Timestamp:</strong> {{ snippet.timestamp }}</p>
+  <pre>{{ snippet.text }}</pre>
+</div>
+
+<ng-template #notFound>
+  <p>🚫 Snippet not found. It might have been deleted or doesn't exist.</p>
+</ng-template>

@@ -10,6 +10,7 @@ import { RouterModule } from '@angular/router';
 import { CodeComparatorComponent } from './components/code-comparator/code-comparator.component';
 import { JsonRegexToolsComponent } from './components/json-regex-tools/json-regex-tools.component';
 import { TimestampUuidToolsComponent } from './components/timestamp-uuid-tools/timestamp-uuid-tools.component';
+import { SharePasteComponent } from './components/share-paste/share-paste.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,9 @@ import { TimestampUuidToolsComponent } from './components/timestamp-uuid-tools/t
     NotesComponent,
     CodeComparatorComponent,
     JsonRegexToolsComponent,
-    TimestampUuidToolsComponent
+    TimestampUuidToolsComponent,
+    SharePasteComponent,
+
   ],
   imports: [
     BrowserModule,

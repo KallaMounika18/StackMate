@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-timestamp-uuid-tools',
   templateUrl: './timestamp-uuid-tools.component.html',
+  styleUrls: ['./timestamp-uuid-tools.component.scss'],
 })
 export class TimestampUuidToolsComponent {
   activeTab: 'timestamp' | 'uuid' = 'timestamp';

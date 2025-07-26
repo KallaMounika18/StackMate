@@ -10,7 +10,7 @@ import { ThemeService } from './services/theme.service';
 
 export class AppComponent {
   title = '🚀 StackMate';
-  subtitle = 'Your coding companion for notes & snippets';
+  subtitle = 'Your All-in-One Dev Toolkit';
 
   constructor(public themeService: ThemeService) {}
 

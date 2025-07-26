@@ -5,6 +5,7 @@ import { NotesComponent } from './components/notes/notes.component';
 import { CodeComparatorComponent } from './components/code-comparator/code-comparator.component';
 import { TimestampUuidToolsComponent } from './components/timestamp-uuid-tools/timestamp-uuid-tools.component';
 import { JsonRegexToolsComponent } from './components/json-regex-tools/json-regex-tools.component';
+import { SharePasteComponent } from './components/share-paste/share-paste.component';
 
 const routes: Routes = [
   { path: 'pastebin', component: PastebinComponent },
@@ -12,7 +13,8 @@ const routes: Routes = [
   { path: 'code-comparator', component: CodeComparatorComponent },
   { path: 'timestamp-uuid-tools', component: TimestampUuidToolsComponent },
   { path: 'json-regex-tools', component: JsonRegexToolsComponent },
-  { path: '', redirectTo: '/pastebin', pathMatch: 'full' }
+  { path: '', redirectTo: '/pastebin', pathMatch: 'full' },
+  { path: 'share/:id', component: SharePasteComponent }
 ];
 
 @NgModule({

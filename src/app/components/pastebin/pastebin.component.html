@@ -1,76 +1,33 @@
-<!-- pastebin.component.html -->
-<div class="container">
-  <h2 class="title">
-    <span>📝</span>
-    Code PasteBin
-  </h2>
-
-  <div class="stats-bar">
-    <div class="stat">
-      <div class="stat-number">{{ pastes.length }}</div>
-      <div class="stat-label">Code Snippets</div>
-    </div>
-    <div class="stat">
-      <div class="stat-number">{{ getTotalLines() | number }}</div>
-      <div class="stat-label">Lines of Code</div>
-    </div>
-    <div class="stat">
-      <div class="stat-number">🔥</div>
-      <div class="stat-label">Saved Snippets</div>
-    </div>
+<div class="pastebin-container">
+  <div class="stats-section">
+    <div class="stat-card"><h3>{{ pastes.length }}</h3><p>Code Snippets</p></div>
+    <div class="stat-card"><h3>{{ getTotalLines() }}</h3><p>Lines of Code</p></div>
+    <div class="stat-card"><h3>🔗</h3><p>Share Snippets</p></div>
   </div>
 
-  <div class="input-section">
-    <textarea 
-      [(ngModel)]="pasteText" 
-      placeholder="Paste your epic code, logs, or any text here... 🖥️⚡" 
-      class="textarea code-input"
-      #codeInput></textarea>
-    
-    <button 
-      (click)="addPaste()" 
-      class="button"
-      [disabled]="!pasteText.trim()">
-      💾 Save Snippet
-    </button>
-    
-    <div class="keyboard-hint">
-      <small>💡 Pro tip: Press <kbd>Ctrl + Enter</kbd> to quickly save snippets!</small>
-    </div>
+  <div class="pastebin-input">
+    <textarea [(ngModel)]="pasteText" placeholder="Paste your code, logs, or notes here..."></textarea>
+    <button (click)="addPaste()" class="btn btn-primary" [disabled]="!pasteText.trim()">💾 Save Snippet</button>
+    <small>💡 Ctrl + Enter to save</small>
   </div>
 
-  <ul class="paste-list" *ngIf="pastes.length > 0">
-    <li *ngFor="let paste of pastes; trackBy: trackByPasteId" class="paste-item">
+  <div *ngIf="pastes.length > 0" class="pastebin-list">
+    <div *ngFor="let paste of pastes; trackBy: trackByPasteId" class="pastebin-item">
       <div>
-        <div class="paste-header">
-          <strong>💻 Code Snippet</strong>
-          <span class="language-tag" *ngIf="paste.language">{{ paste.language }}</span>
-        </div>
-        <div class="timestamp">
-          ⏰ {{ paste.timestamp }} • 📏 {{ paste.lines }} lines
-        </div>
-        <div class="paste-content">{{ paste.text }}</div>
+        <strong>💻 Snippet</strong>
+        <span *ngIf="paste.language" class="language-tag">({{ paste.language }})</span>
+        <div class="timestamp">🕒 {{ paste.timestamp }} • 📏 {{ paste.lines }} lines</div>
+        <pre>{{ paste.text }}</pre>
       </div>
       <div class="actions">
-        <button 
-          (click)="copyToClipboard(paste.text)" 
-          class="copy-btn"
-          title="Copy to clipboard">
-          📋 Copy
-        </button>
-        <button 
-          (click)="deletePaste(paste.id)" 
-          class="delete-btn"
-          title="Delete snippet">
-          🗑️ Delete
-        </button>
+        <button (click)="copyToClipboard(paste.text)" class="btn-sm">📋 Copy</button>
+        <button (click)="deletePaste(paste.id)" class="btn-sm btn-danger">🗑️ Delete</button>
+        <button (click)="copyShareLink(paste.id)" class="btn-sm btn-outline"><a [routerLink]="['/share', paste.id]" class="share-link">🔗 Share</a></button>
       </div>
-    </li>
-  </ul>
+    </div>
+  </div>
 
-  <div *ngIf="pastes.length === 0" class="empty-state">
-    <span class="emoji">📭</span>
-    <h3>No snippets yet!</h3>
-    <p>Paste your first code snippet or log above</p>
+  <div *ngIf="pastes.length === 0" class="pastebin-empty">
+    <p>📭 No snippets yet. Paste your first one above!</p>
   </div>
 </div>
