@@ -12,7 +12,7 @@
   </div>
 
   <div *ngIf="pastes.length > 0" class="pastebin-list">
-    <div *ngFor="let paste of pastes; trackBy: trackByPasteId" class="pastebin-item">
+    <div *ngFor="let paste of pastes;" class="pastebin-item">
       <div>
         <strong>💻 Snippet</strong>
         <span *ngIf="paste.language" class="language-tag">({{ paste.language }})</span>

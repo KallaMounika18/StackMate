@@ -46,7 +46,7 @@
   </div>
 
   <ul class="paste-list" *ngIf="notes.length > 0">
-    <li *ngFor="let note of notes; trackBy: trackByNoteId" class="paste-item">
+    <li *ngFor="let note of notes;" class="paste-item">
       <div>
         <strong>📌 {{ note.title }}</strong>
         <div class="timestamp">
