@@ -1,0 +1,6 @@
+<div class="converter-container">
+  <h2>🔁 cURL to HTTP Converter</h2>
+  <textarea [(ngModel)]="curlCommand" placeholder="Paste your cURL command here"></textarea>
+  <button (click)="convert()">Convert</button>
+  <pre *ngIf="httpRequest">{{ httpRequest }}</pre>
+</div>

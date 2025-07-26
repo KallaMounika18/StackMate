@@ -6,6 +6,9 @@ import { CodeComparatorComponent } from './components/code-comparator/code-compa
 import { TimestampUuidToolsComponent } from './components/timestamp-uuid-tools/timestamp-uuid-tools.component';
 import { JsonRegexToolsComponent } from './components/json-regex-tools/json-regex-tools.component';
 import { SharePasteComponent } from './components/share-paste/share-paste.component';
+import { ApiTesterComponent } from './components/api-tester/api-tester.component';
+import { CurlConverterComponent } from './components/curl-converter/curl-converter.component';
+import { MarkdownPreviewerComponent } from './components/markdown-previewer/markdown-previewer.component';
 
 const routes: Routes = [
   { path: 'pastebin', component: PastebinComponent },
@@ -14,7 +17,10 @@ const routes: Routes = [
   { path: 'timestamp-uuid-tools', component: TimestampUuidToolsComponent },
   { path: 'json-regex-tools', component: JsonRegexToolsComponent },
   { path: '', redirectTo: '/pastebin', pathMatch: 'full' },
-  { path: 'share/:id', component: SharePasteComponent }
+  { path: 'share/:id', component: SharePasteComponent },
+  { path: 'api-tester', component: ApiTesterComponent },
+  { path: 'curl-converter', component: CurlConverterComponent },
+  { path: 'markdown-previewer', component: MarkdownPreviewerComponent }
 ];
 
 @NgModule({

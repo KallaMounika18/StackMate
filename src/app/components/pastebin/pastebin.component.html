@@ -2,7 +2,7 @@
   <div class="stats-section">
     <div class="stat-card"><h3>{{ pastes.length }}</h3><p>Code Snippets</p></div>
     <div class="stat-card"><h3>{{ getTotalLines() }}</h3><p>Lines of Code</p></div>
-    <div class="stat-card"><h3>🔗</h3><p>Share Snippets</p></div>
+    <!-- <div class="stat-card"><h3>🔗</h3><p>Share Snippets</p></div> -->
   </div>
 
   <div class="pastebin-input">
@@ -22,7 +22,7 @@
       <div class="actions">
         <button (click)="copyToClipboard(paste.text)" class="btn-sm">📋 Copy</button>
         <button (click)="deletePaste(paste.id)" class="btn-sm btn-danger">🗑️ Delete</button>
-        <button (click)="copyShareLink(paste.id)" class="btn-sm btn-outline"><a [routerLink]="['/share', paste.id]" class="share-link">🔗 Share</a></button>
+        <!-- <button (click)="copyShareLink(paste.id)" class="btn-sm btn-outline"><a [routerLink]="['/share', paste.id]" class="share-link">🔗 Share</a></button> -->
       </div>
     </div>
   </div>

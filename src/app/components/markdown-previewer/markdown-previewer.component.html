@@ -1,0 +1,103 @@
+<div class="markdown-previewer">
+  <div class="header">
+    <h1 class="title">📝 Markdown Previewer</h1>
+    <p class="subtitle">Write and preview Markdown in real-time</p>
+  </div>
+
+  <div class="markdown-toolbar">
+    <div class="toolbar-left">
+      <div class="layout-toggle">
+        <button 
+          class="layout-btn" 
+          [class.active]="viewMode === 'split'"
+          (click)="setViewMode('split')"
+          title="Split View"
+        >
+          📊 Split
+        </button>
+        <button 
+          class="layout-btn" 
+          [class.active]="viewMode === 'edit'"
+          (click)="setViewMode('edit')"
+          title="Editor Only"
+        >
+          ✏️ Edit
+        </button>
+        <button 
+          class="layout-btn" 
+          [class.active]="viewMode === 'preview'"
+          (click)="setViewMode('preview')"
+          title="Preview Only"
+        >
+          👁️ Preview
+        </button>
+      </div>
+    </div>
+
+    <div class="toolbar-right">
+      <button class="btn btn-secondary btn-small" (click)="insertTemplate('heading')">
+        # Heading
+      </button>
+      <button class="btn btn-secondary btn-small" (click)="insertTemplate('list')">
+        📋 List
+      </button>
+      <button class="btn btn-secondary btn-small" (click)="insertTemplate('link')">
+        🔗 Link
+      </button>
+      <button class="btn btn-secondary btn-small" (click)="insertTemplate('code')">
+        💻 Code
+      </button>
+      <button class="btn btn-secondary btn-small" (click)="clearContent()">
+        🗑️ Clear
+      </button>
+      <span class="word-count">
+        {{ getWordCount() }} words, {{ getCharCount() }} chars
+      </span>
+    </div>
+  </div>
+
+  <div class="markdown-container" 
+       [class.editor-only]="viewMode === 'edit'"
+       [class.preview-only]="viewMode === 'preview'">
+    
+    <div class="editor-panel" *ngIf="viewMode !== 'preview'">
+      <div class="panel-header">
+        <span class="panel-icon">✏️</span>
+        Markdown Editor
+      </div>
+      <textarea 
+        class="markdown-editor"
+        [(ngModel)]="markdownContent"
+        #markdownEditor
+        placeholder="# Welcome to Markdown Previewer!
+
+Start typing your Markdown here...
+
+## Features
+- Live preview
+- Word count
+- Template insertion
+- Multiple view modes
+
+**Bold text** and *italic text*
+`inline code` and code blocks
+
+> Blockquotes look great too!
+
+[Links](https://example.com) and images work perfectly."
+      ></textarea>
+    </div>
+
+    <div class="preview-panel" *ngIf="viewMode !== 'edit'">
+      <div class="panel-header">
+        <span class="panel-icon">👁️</span>
+        Live Preview
+      </div>
+      <div class="markdown-preview">
+        <div class="preview-content">
+          <markdown [data]="markdownContent"></markdown>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

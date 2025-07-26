@@ -1,0 +1,367 @@
+.markdown-previewer {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--text);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 2.2rem;
+  margin: 0;
+  color: var(--text);
+}
+
+.subtitle {
+  color: var(--text-light);
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}
+
+.markdown-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--secondary-bg);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.toolbar-left {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.toolbar-right {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.btn {
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+  font-family: inherit;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-secondary {
+  background-color: var(--secondary-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background-color: var(--hover-bg);
+}
+
+.btn-small {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+}
+
+.word-count {
+  color: var(--text-light);
+  font-size: 0.85rem;
+  margin-left: auto;
+}
+
+.markdown-container {
+  display: flex;
+  gap: 0;
+  background: var(--primary-bg);
+  border: 1px solid var(--border);
+  border-radius: 0 0 var(--radius) var(--radius);
+  box-shadow: var(--shadow);
+  min-height: 500px;
+}
+
+.editor-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+}
+
+.preview-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-header {
+  background: var(--secondary-bg);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.panel-icon {
+  font-size: 1rem;
+}
+
+.markdown-editor {
+  flex: 1;
+  padding: 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  border: none;
+  outline: none;
+  resize: none;
+  background: var(--primary-bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.markdown-editor::placeholder {
+  color: var(--text-light);
+}
+
+.markdown-preview {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+  background: var(--primary-bg);
+}
+
+.preview-content {
+  line-height: 1.7;
+  color: var(--text);
+
+  h1, h2, h3, h4, h5, h6 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  h1 {
+    font-size: 2rem;
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 0.5rem;
+  }
+
+  h2 {
+    font-size: 1.6rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.3rem;
+  }
+
+  h3 {
+    font-size: 1.3rem;
+  }
+
+  h4 {
+    font-size: 1.1rem;
+  }
+
+  p {
+    margin-bottom: 1rem;
+  }
+
+  blockquote {
+    border-left: 4px solid var(--primary);
+    margin: 1.5rem 0;
+    padding: 0.5rem 1rem;
+    background: var(--secondary-bg);
+    color: var(--text-light);
+    font-style: italic;
+  }
+
+  code {
+    background: var(--secondary-bg);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    color: var(--primary);
+  }
+
+  pre {
+    background: var(--secondary-bg);
+    padding: 1rem;
+    border-radius: var(--radius);
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    margin: 1rem 0;
+
+    code {
+      background: none;
+      padding: 0;
+      color: var(--text);
+    }
+  }
+
+  ul, ol {
+    margin: 1rem 0;
+    padding-left: 2rem;
+  }
+
+  li {
+    margin-bottom: 0.5rem;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    border: 1px solid var(--border);
+  }
+
+  th, td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    background: var(--secondary-bg);
+    font-weight: 600;
+  }
+
+  a {
+    color: var(--primary);
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+    margin: 1rem 0;
+  }
+
+  hr {
+    border: none;
+    border-top: 2px solid var(--border);
+    margin: 2rem 0;
+  }
+}
+
+.layout-toggle {
+  display: flex;
+  background: var(--secondary-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.layout-btn {
+  padding: 0.4rem 0.8rem;
+  border: none;
+  background: transparent;
+  color: var(--text-light);
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.layout-btn.active {
+  background: var(--primary);
+  color: white;
+}
+
+.layout-btn:hover:not(.active) {
+  background: var(--hover-bg);
+}
+
+.single-panel {
+  .preview-panel,
+  .editor-panel {
+    flex: 1;
+    border-right: none;
+  }
+}
+
+.preview-only {
+  .editor-panel {
+    display: none;
+  }
+}
+
+.editor-only {
+  .preview-panel {
+    display: none;
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .markdown-previewer {
+    padding: 1rem;
+  }
+
+  .markdown-container {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .editor-panel {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .markdown-editor {
+    min-height: 300px;
+  }
+
+  .markdown-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .toolbar-left,
+  .toolbar-right {
+    justify-content: center;
+  }
+
+  .word-count {
+    margin-left: 0;
+    text-align: center;
+  }
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary: #60a5fa;
+    --primary-hover: #3b82f6;
+    --text: #f9fafb;
+    --text-light: #9ca3af;
+    --primary-bg: #1f2937;
+    --secondary-bg: #111827;
+    --border: #374151;
+    --hover-bg: #374151;
+  }
+}

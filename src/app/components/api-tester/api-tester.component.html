@@ -1,0 +1,116 @@
+<div class="api-tester">
+  <div class="header">
+    <h1 class="title">🌐 API Tester</h1>
+    <p class="subtitle">Test and debug HTTP requests with ease</p>
+  </div>
+
+  <form class="request-form" (ngSubmit)="sendRequest()" #form="ngForm">
+    <div class="form-row">
+      <div class="form-group method">
+        <label class="form-label" for="method">Method</label>
+        <select class="form-select" id="method" [(ngModel)]="method" name="method">
+          <option value="GET">GET</option>
+          <option value="POST">POST</option>
+          <option value="PUT">PUT</option>
+          <option value="PATCH">PATCH</option>
+          <option value="DELETE">DELETE</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="url">URL</label>
+        <input 
+          class="form-input"
+          type="url" 
+          id="url"
+          [(ngModel)]="url" 
+          name="url" 
+          placeholder="https://api.example.com/endpoint"
+          required 
+        />
+      </div>
+    </div>
+
+    <div class="headers-section">
+      <label class="form-label">Headers</label>
+      <div class="headers-container">
+        <div class="header-row" *ngFor="let header of headers; let i = index">
+          <input 
+            class="header-input"
+            type="text"
+            placeholder="Header name" 
+            [(ngModel)]="header.key" 
+            [name]="'headerKey' + i"
+          />
+          <input 
+            class="header-input"
+            type="text"
+            placeholder="Header value" 
+            [(ngModel)]="header.value" 
+            [name]="'headerValue' + i"
+          />
+          <button 
+            type="button" 
+            class="btn btn-remove btn-small"
+            (click)="removeHeader(i)"
+            [attr.aria-label]="'Remove header ' + (i + 1)"
+          >
+            Remove
+          </button>
+        </div>
+        <div class="action-bar">
+          <button 
+            type="button" 
+            class="btn btn-secondary btn-small"
+            (click)="addHeader()"
+          >
+            + Add Header
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group" *ngIf="method !== 'GET' && method !== 'DELETE'">
+      <label class="form-label" for="body">Request Body (JSON)</label>
+      <textarea 
+        class="form-textarea"
+        id="body"
+        [(ngModel)]="body" 
+        name="body"
+        placeholder='{"key": "value"}'
+      ></textarea>
+    </div>
+
+    <div class="action-bar">
+      <button type="submit" class="btn btn-primary" [disabled]="!form.form.valid">
+        Send Request
+      </button>
+    </div>
+  </form>
+
+  <div class="response-section" *ngIf="response; else emptyState">
+    <div class="response-header">
+      <h2 class="response-title">Response</h2>
+      <span class="status-badge" 
+            [class.status-success]="status >= 200 && status < 300"
+            [class.status-warning]="status >= 300 && status < 400"
+            [class.status-error]="status >= 400">
+        Status: {{ status }}
+      </span>
+    </div>
+    
+    <div class="response-container">
+      <div class="response-content">
+        <pre class="response-pre">{{ response | json }}</pre>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #emptyState>
+    <div class="empty-state">
+      <span class="emoji">🚀</span>
+      <h3>Ready to test</h3>
+      <p>Enter a URL and click "Send Request" to get started</p>
+    </div>
+  </ng-template>
+</div>

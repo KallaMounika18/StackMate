@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms'; // <-- Add this
-import { HttpClientModule } from '@angular/common/http'; // <-- Add this
+import { HttpClient, HttpClientModule } from '@angular/common/http'; // <-- Add this
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { PastebinComponent } from './components/pastebin/pastebin.component';
@@ -11,7 +11,10 @@ import { CodeComparatorComponent } from './components/code-comparator/code-compa
 import { JsonRegexToolsComponent } from './components/json-regex-tools/json-regex-tools.component';
 import { TimestampUuidToolsComponent } from './components/timestamp-uuid-tools/timestamp-uuid-tools.component';
 import { SharePasteComponent } from './components/share-paste/share-paste.component';
-
+import { ApiTesterComponent } from './components/api-tester/api-tester.component';
+import { CurlConverterComponent } from './components/curl-converter/curl-converter.component';
+import { MarkdownPreviewerComponent } from './components/markdown-previewer/markdown-previewer.component';
+import { MarkdownModule } from 'ngx-markdown';
 @NgModule({
   declarations: [
     AppComponent,
@@ -21,14 +24,18 @@ import { SharePasteComponent } from './components/share-paste/share-paste.compon
     JsonRegexToolsComponent,
     TimestampUuidToolsComponent,
     SharePasteComponent,
-
+    ApiTesterComponent,
+    CurlConverterComponent,
+    MarkdownPreviewerComponent,
+    
   ],
   imports: [
     BrowserModule,
-    FormsModule,        // <-- Add this
-    HttpClientModule,   // <-- Add this
+    FormsModule,
+    HttpClientModule,
     AppRoutingModule,
-    RouterModule.forRoot([])
+    RouterModule.forRoot([]),
+    MarkdownModule.forRoot({ loader: HttpClient })
   ],
   providers: [],
   bootstrap: [AppComponent]
