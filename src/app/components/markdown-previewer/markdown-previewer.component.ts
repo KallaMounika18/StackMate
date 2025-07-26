@@ -122,9 +122,11 @@ function greet(name) {
     const file = (event.target as HTMLInputElement).files[0];
     if (file && file.type === 'text/markdown') {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        this.markdownContent = e.target.result as string;
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        const result = (e.target as FileReader).result;
+        this.markdownContent = typeof result === 'string' ? result : '';
       };
+
       reader.readAsText(file);
     }
   }

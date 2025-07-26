@@ -28,6 +28,7 @@
               "src/assets"
             ],
             "styles": [
+              "node_modules/prismjs/themes/prism.css",
               "src/styles.scss"
             ],
             "scripts": []
