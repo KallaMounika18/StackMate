@@ -1,33 +1,94 @@
 <div class="pastebin-container">
   <div class="stats-section">
-    <div class="stat-card"><h3>{{ pastes.length }}</h3><p>Code Snippets</p></div>
-    <div class="stat-card"><h3>{{ getTotalLines() }}</h3><p>Lines of Code</p></div>
-    <!-- <div class="stat-card"><h3>🔗</h3><p>Share Snippets</p></div> -->
+    <div class="stat-card">
+      <h3>{{ pastes.length }}</h3>
+      <p>Code Snippets</p>
+    </div>
+    <div class="stat-card">
+      <h3>{{ getTotalLines() }}</h3>
+      <p>Lines of Code</p>
+    </div>
+    <div class="stat-card">
+      <h3>🔗</h3>
+      <p>Share Snippets</p>
+    </div>
   </div>
 
   <div class="pastebin-input">
-    <textarea [(ngModel)]="pasteText" placeholder="Paste your code, logs, or notes here..."></textarea>
-    <button (click)="addPaste()" class="btn btn-primary" [disabled]="!pasteText.trim()">💾 Save Snippet</button>
+    <textarea
+      [(ngModel)]="pasteText"
+      placeholder="Paste your code, logs, or notes here..."
+      [disabled]="isLoading"
+    ></textarea>
+    
+    <div class="paste-options">
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="isPublic">
+        🌍 Make Public
+      </label>
+      
+      <div class="expiration-select">
+        <label>⏰ Expires in:</label>
+        <select [(ngModel)]="expirationHours">
+          <option value="0">Never</option>
+          <option value="1">1 Hour</option>
+          <option value="24">1 Day</option>
+          <option value="168">1 Week</option>
+          <option value="720">30 Days</option>
+        </select>
+      </div>
+    </div>
+
+    <button
+      (click)="addPaste()"
+      class="btn btn-primary"
+      [disabled]="!pasteText.trim() || isLoading"
+    >
+      <span *ngIf="!isLoading">💾 Save Snippet</span>
+      <span *ngIf="isLoading">⏳ Saving...</span>
+    </button>
+    
     <small>💡 Ctrl + Enter to save</small>
   </div>
 
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
   <div *ngIf="pastes.length > 0" class="pastebin-list">
-    <div *ngFor="let paste of pastes;" class="pastebin-item">
+    <div *ngFor="let paste of pastes" class="pastebin-item">
       <div>
         <strong>💻 Snippet</strong>
         <span *ngIf="paste.language" class="language-tag">({{ paste.language }})</span>
-        <div class="timestamp">🕒 {{ paste.timestamp }} • 📏 {{ paste.lines }} lines</div>
-        <pre>{{ paste.text }}</pre>
+        <span *ngIf="paste.isPublic" class="public-badge">🌍 Public</span>
+        <div class="timestamp">
+          🕒 {{ formatDate(paste.createdAt) }} • 📏 {{ paste.lineCount }} lines
+          <span *ngIf="paste.expiresAt"> • ⏰ Expires: {{ formatDate(paste.expiresAt) }}</span>
+        </div>
+        <pre>{{ paste.content }}</pre>
       </div>
       <div class="actions">
-        <button (click)="copyToClipboard(paste.text)" class="btn-sm">📋 Copy</button>
-        <button (click)="deletePaste(paste.id)" class="btn-sm btn-danger">🗑️ Delete</button>
-        <!-- <button (click)="copyShareLink(paste.id)" class="btn-sm btn-outline"><a [routerLink]="['/share', paste.id]" class="share-link">🔗 Share</a></button> -->
+        <button (click)="copyToClipboard(paste.content)" class="btn-sm">
+          📋 Copy
+        </button>
+        <button
+          *ngIf="paste.isPublic"
+          (click)="copyShareLink(paste.publicUrl)"
+          class="btn-sm btn-outline"
+        >
+          🔗 Share
+        </button>
+        <button
+          (click)="deletePaste(paste.id)"
+          class="btn-sm btn-danger"
+        >
+          🗑️ Delete
+        </button>
       </div>
     </div>
   </div>
 
-  <div *ngIf="pastes.length === 0" class="pastebin-empty">
+  <div *ngIf="pastes.length === 0 && !isLoading" class="pastebin-empty">
     <p>📭 No snippets yet. Paste your first one above!</p>
   </div>
 </div>

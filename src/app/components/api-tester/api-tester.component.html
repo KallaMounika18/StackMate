@@ -4,6 +4,72 @@
     <p class="subtitle">Test and debug HTTP requests with ease</p>
   </div>
 
+  <!-- Saved APIs Section -->
+  <div class="saved-apis-section">
+    <div class="saved-apis-header">
+      <h3>💾 Saved APIs</h3>
+      <div class="saved-apis-actions">
+        <div class="search-input-group">
+          <input
+            [(ngModel)]="searchQuery"
+            (input)="searchSavedApis()"
+            placeholder="🔍 Search saved APIs..."
+            class="search-input"
+          />
+          <button
+            *ngIf="searchQuery"
+            (click)="clearSearch()"
+            class="clear-search-btn"
+          >
+            ✖️
+          </button>
+        </div>
+        <button
+          (click)="openSaveDialog()"
+          class="btn btn-secondary"
+          [disabled]="!url"
+        >
+          💾 Save Current API
+        </button>
+      </div>
+    </div>
+    
+    <div class="saved-apis-list" *ngIf="savedApis.length > 0">
+      <div
+        *ngFor="let api of savedApis"
+        class="saved-api-item"
+        (click)="loadSavedApi(api)"
+      >
+        <div class="api-info">
+          <div class="api-name">{{ api.name }}</div>
+          <div class="api-details">
+            <span class="method-badge" [class]="'method-' + api.method.toLowerCase()">
+              {{ api.method }}
+            </span>
+            <span class="api-url">{{ api.url }}</span>
+          </div>
+          <div class="api-description" *ngIf="api.description">
+            {{ api.description }}
+          </div>
+          <div class="api-date">
+            Created: {{ formatDate(api.createdAt) }}
+          </div>
+        </div>
+        <button
+          (click)="deleteSavedApi(api.id); $event.stopPropagation()"
+          class="delete-api-btn"
+          title="Delete API"
+        >
+          🗑️
+        </button>
+      </div>
+    </div>
+    
+    <div *ngIf="savedApis.length === 0" class="empty-saved-apis">
+      <p>No saved APIs yet. Save your first API above!</p>
+    </div>
+  </div>
+
   <form class="request-form" (ngSubmit)="sendRequest()" #form="ngForm">
     <div class="form-row">
       <div class="form-group method">
@@ -82,13 +148,22 @@
     </div>
 
     <div class="action-bar">
-      <button type="submit" class="btn btn-primary" [disabled]="!form.form.valid">
-        Send Request
+      <button 
+        type="submit" 
+        class="btn btn-primary" 
+        [disabled]="!form.form.valid || isLoading"
+      >
+        <span *ngIf="!isLoading">🚀 Send Request</span>
+        <span *ngIf="isLoading">⏳ Sending...</span>
       </button>
     </div>
   </form>
 
-  <div class="response-section" *ngIf="response; else emptyState">
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="response-section" *ngIf="response !== null; else emptyState">
     <div class="response-header">
       <h2 class="response-title">Response</h2>
       <span class="status-badge" 
@@ -113,4 +188,49 @@
       <p>Enter a URL and click "Send Request" to get started</p>
     </div>
   </ng-template>
+
+  <!-- Save API Dialog -->
+  <div class="modal-overlay" *ngIf="showSaveDialog" (click)="closeSaveDialog()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>💾 Save API</h3>
+        <button (click)="closeSaveDialog()" class="close-btn">✖️</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">API Name *</label>
+          <input
+            [(ngModel)]="saveApiName"
+            placeholder="e.g., Get User Profile"
+            class="form-input"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea
+            [(ngModel)]="saveApiDescription"
+            placeholder="Optional description..."
+            class="form-textarea"
+            rows="3"
+          ></textarea>
+        </div>
+        <div class="api-preview">
+          <strong>Preview:</strong><br>
+          <span class="method-badge" [class]="'method-' + method.toLowerCase()">{{ method }}</span>
+          {{ url }}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button (click)="closeSaveDialog()" class="btn btn-secondary">Cancel</button>
+        <button 
+          (click)="saveCurrentApi()" 
+          class="btn btn-primary"
+          [disabled]="!saveApiName.trim()"
+        >
+          Save API
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

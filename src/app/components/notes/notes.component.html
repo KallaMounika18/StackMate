@@ -1,4 +1,3 @@
-<!-- notes.component.html -->
 <div class="container">
   <h2 class="title">
     <span>📒</span>
@@ -20,41 +19,87 @@
     </div>
   </div>
 
+  <!-- Search Section -->
+  <div class="search-section">
+    <div class="search-input-group">
+      <input
+        [(ngModel)]="searchQuery"
+        (input)="searchNotes()"
+        placeholder="🔍 Search your notes..."
+        class="search-input"
+      />
+      <button
+        *ngIf="searchQuery"
+        (click)="clearSearch()"
+        class="clear-search-btn"
+        title="Clear search"
+      >
+        ✖️
+      </button>
+    </div>
+  </div>
+
   <div class="input-section">
+    <div class="editing-indicator" *ngIf="editingNote">
+      <span>✏️ Editing: {{ editingNote.title }}</span>
+      <button (click)="cancelEdit()" class="cancel-edit-btn">Cancel</button>
+    </div>
+
     <input 
       [(ngModel)]="noteTitle" 
       placeholder="✨ What's on your mind?" 
       class="input-field"
+      [disabled]="isLoading"
       #titleInput>
     
     <textarea 
       [(ngModel)]="noteText" 
       placeholder="Write your brilliant thoughts here... 🧠💭" 
       class="textarea"
+      [disabled]="isLoading"
       #textInput></textarea>
     
     <button 
       (click)="addNote()" 
       class="button"
-      [disabled]="!noteTitle.trim() && !noteText.trim()">
-      🎯 Capture Idea
+      [disabled]="(!noteTitle.trim() && !noteText.trim()) || isLoading">
+      <span *ngIf="!isLoading">
+        {{ editingNote ? '💾 Update Note' : '🎯 Capture Idea' }}
+      </span>
+      <span *ngIf="isLoading">
+        {{ editingNote ? '⏳ Updating...' : '⏳ Saving...' }}
+      </span>
     </button>
     
     <div class="keyboard-hint">
-      <small>💡 Pro tip: Press <kbd>Ctrl + Enter</kbd> to quickly add notes!</small>
+      <small>💡 Pro tip: Press <kbd>Ctrl + Enter</kbd> to quickly save notes!</small>
+      <small *ngIf="editingNote"> Press <kbd>Escape</kbd> to cancel editing.</small>
     </div>
   </div>
 
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
   <ul class="paste-list" *ngIf="notes.length > 0">
-    <li *ngFor="let note of notes;" class="paste-item">
+    <li *ngFor="let note of notes" class="paste-item">
       <div>
         <strong>📌 {{ note.title }}</strong>
         <div class="timestamp">
-          ⏰ {{ note.timestamp }}
+          ⏰ Created: {{ formatDate(note.createdAt) }}
+          <span *ngIf="note.updatedAt !== note.createdAt">
+            • Updated: {{ formatDate(note.updatedAt) }}
+          </span>
         </div>
-        <div class="note-text">{{ note.text }}</div>
+        <div class="note-text">{{ note.content }}</div>
       </div>
       <div class="actions">
+        <button 
+          (click)="editNote(note)" 
+          class="edit-btn"
+          title="Edit note">
+          ✏️ Edit
+        </button>
         <button 
           (click)="deleteNote(note.id)" 
           class="delete-btn"
@@ -65,9 +110,9 @@
     </li>
   </ul>
 
-  <div *ngIf="notes.length === 0" class="empty-state">
+  <div *ngIf="notes.length === 0 && !isLoading" class="empty-state">
     <span class="emoji">🤔</span>
-    <h3>No notes yet!</h3>
-    <p>Start capturing your brilliant ideas above</p>
+    <h3>{{ searchQuery ? 'No notes found' : 'No notes yet!' }}</h3>
+    <p>{{ searchQuery ? 'Try a different search term' : 'Start capturing your brilliant ideas above' }}</p>
   </div>
 </div>

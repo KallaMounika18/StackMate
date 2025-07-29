@@ -1,13 +1,7 @@
 import { Component, OnInit, HostListener } from '@angular/core';
-import { v4 as uuidv4 } from 'uuid';
-
-interface Paste {
-  id: string;
-  text: string;
-  timestamp: string;
-  lines: number;
-  language?: string;
-}
+import { PastebinService, PasteRequest, PasteResponse } from '../../services/pastebin.service';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-pastebin',
@@ -16,74 +10,113 @@ interface Paste {
 })
 export class PastebinComponent implements OnInit {
   pasteText: string = '';
-  pastes: Paste[] = [];
-  baseUrl: string = window.location.origin;
+  pastes: PasteResponse[] = [];
+  isLoading = false;
+  errorMessage = '';
+  isPublic = false;
+  expirationHours = 0; // 0 means never expires
+
+  constructor(
+    private pastebinService: PastebinService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/login']);
+      return;
+    }
     this.loadPastes();
   }
 
   addPaste(): void {
     if (!this.pasteText.trim()) return;
 
-    const id = uuidv4();
-    const paste: Paste = {
-      id,
-      text: this.pasteText.trim(),
-      timestamp: new Date().toLocaleString(),
-      lines: this.pasteText.trim().split('\n').length,
-      language: this.detectLanguage(this.pasteText)
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    const pasteRequest: PasteRequest = {
+      content: this.pasteText.trim(),
+      isPublic: this.isPublic,
+      expiresAt: this.expirationHours > 0 
+        ? new Date(Date.now() + this.expirationHours * 60 * 60 * 1000).toISOString()
+        : undefined
     };
 
-    this.pastes.unshift(paste);
-    this.savePastes();
-    this.clearInput();
+    this.pastebinService.createPaste(pasteRequest).subscribe({
+      next: (response) => {
+        this.pastes.unshift(response);
+        this.clearInput();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error creating paste:', error);
+        this.errorMessage = 'Failed to create paste. Please try again.';
+        this.isLoading = false;
+      }
+    });
   }
 
-  deletePaste(id: string): void {
-    this.pastes = this.pastes.filter(paste => paste.id !== id);
-    this.savePastes();
+  deletePaste(pasteId: number): void {
+    if (!confirm('Are you sure you want to delete this paste?')) {
+      return;
+    }
+
+    this.pastebinService.deletePaste(pasteId).subscribe({
+      next: () => {
+        this.pastes = this.pastes.filter(paste => paste.id !== pasteId);
+      },
+      error: (error) => {
+        console.error('Error deleting paste:', error);
+        this.errorMessage = 'Failed to delete paste. Please try again.';
+      }
+    });
+  }
+
+  loadPastes(): void {
+    this.pastebinService.getUserPastes().subscribe({
+      next: (pastes) => {
+        this.pastes = pastes;
+      },
+      error: (error) => {
+        console.error('Error loading pastes:', error);
+        this.errorMessage = 'Failed to load pastes.';
+      }
+    });
   }
 
   clearInput(): void {
     this.pasteText = '';
+    this.isPublic = false;
+    this.expirationHours = 0;
   }
 
   getTotalLines(): number {
-    return this.pastes.reduce((total, paste) => total + paste.lines, 0);
+    return this.pastes.reduce((total, paste) => total + paste.lineCount, 0);
   }
 
   copyToClipboard(text: string): void {
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(text).then(() => {
+      // You could add a toast notification here
+      console.log('Copied to clipboard');
+    });
   }
 
-  copyShareLink(id: string): void {
-    const link = `${this.baseUrl}/share/${id}`;
-    navigator.clipboard.writeText(link);
-    alert('🔗 Shareable link copied!');
+  copyShareLink(publicUrl: string): void {
+    navigator.clipboard.writeText(publicUrl).then(() => {
+      alert('🔗 Shareable link copied!');
+    });
   }
 
-  private detectLanguage(text: string): string {
-    if (text.includes('function')) return 'JavaScript';
-    if (text.includes('def ') || text.includes('import ')) return 'Python';
-    if (text.includes('<') && text.includes('>')) return 'HTML/XML';
-    if (text.includes('class ') && text.includes('public')) return 'Java/C#';
-    if (text.includes('#include') || text.includes('int main')) return 'C/C++';
-    if (text.includes('SELECT') || text.includes('FROM')) return 'SQL';
-    return 'Text';
-  }
-
-  private savePastes(): void {
-    localStorage.setItem('stackmate_pastes', JSON.stringify(this.pastes));
-  }
-
-  private loadPastes(): void {
-    const saved = localStorage.getItem('stackmate_pastes');
-    if (saved) this.pastes = JSON.parse(saved);
+  formatDate(dateString: string): string {
+    return new Date(dateString).toLocaleString();
   }
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent): void {
-    if (event.ctrlKey && event.key === 'Enter') this.addPaste();
+    if (event.ctrlKey && event.key === 'Enter') {
+      this.addPaste();
+    }
   }
 }
