@@ -1,116 +1,121 @@
-<div class="api-tester">
-  <div class="header">
-    <h1 class="title">🌐 API Tester</h1>
-    <p class="subtitle">Test and debug HTTP requests with ease</p>
-  </div>
-
-  <form class="request-form" (ngSubmit)="sendRequest()" #form="ngForm">
-    <div class="form-row">
-      <div class="form-group method">
-        <label class="form-label" for="method">Method</label>
-        <select class="form-select" id="method" [(ngModel)]="method" name="method">
+<div class="api-shell">
+  <app-ui-card eyebrow="Request Console" title="API Tester" subtitle="Postman-style request builder with persisted inputs, cleaner alignment, and a structured response workspace.">
+    <div class="request-grid">
+      <label class="field-group method-field">
+        <span>Method</span>
+        <select [(ngModel)]="method" (ngModelChange)="persistRequest()">
           <option value="GET">GET</option>
           <option value="POST">POST</option>
           <option value="PUT">PUT</option>
           <option value="PATCH">PATCH</option>
           <option value="DELETE">DELETE</option>
         </select>
-      </div>
+      </label>
 
-      <div class="form-group">
-        <label class="form-label" for="url">URL</label>
-        <input 
-          class="form-input"
-          type="url" 
-          id="url"
-          [(ngModel)]="url" 
-          name="url" 
-          placeholder="https://api.example.com/endpoint"
-          required 
-        />
+      <label class="field-group url-field">
+        <span>URL</span>
+        <input type="url" [(ngModel)]="url" placeholder="https://api.example.com/endpoint" (ngModelChange)="persistRequest()">
+      </label>
+
+      <div class="submit-row">
+        <app-ui-button variant="primary" icon="↗" [disabled]="!url || isLoading" (pressed)="sendRequest()">
+          {{ isLoading ? 'Sending...' : 'Send Request' }}
+        </app-ui-button>
       </div>
     </div>
 
-    <div class="headers-section">
-      <label class="form-label">Headers</label>
-      <div class="headers-container">
+    <div class="headers-card">
+      <div class="section-header">
+        <div>
+          <h3>Headers</h3>
+          <p>Standardized key/value rows with local persistence.</p>
+        </div>
+        <app-ui-button variant="secondary" small icon="＋" (pressed)="addHeader()">Add Header</app-ui-button>
+      </div>
+
+      <div class="header-list">
         <div class="header-row" *ngFor="let header of headers; let i = index">
-          <input 
-            class="header-input"
-            type="text"
-            placeholder="Header name" 
-            [(ngModel)]="header.key" 
-            [name]="'headerKey' + i"
-          />
-          <input 
-            class="header-input"
-            type="text"
-            placeholder="Header value" 
-            [(ngModel)]="header.value" 
-            [name]="'headerValue' + i"
-          />
-          <button 
-            type="button" 
-            class="btn btn-remove btn-small"
-            (click)="removeHeader(i)"
-            [attr.aria-label]="'Remove header ' + (i + 1)"
-          >
-            Remove
-          </button>
-        </div>
-        <div class="action-bar">
-          <button 
-            type="button" 
-            class="btn btn-secondary btn-small"
-            (click)="addHeader()"
-          >
-            + Add Header
-          </button>
+          <input type="text" [(ngModel)]="header.key" placeholder="Header name" (ngModelChange)="persistRequest()">
+          <input type="text" [(ngModel)]="header.value" placeholder="Header value" (ngModelChange)="persistRequest()">
+          <app-ui-button variant="danger" small icon="✕" (pressed)="removeHeader(i)">Remove</app-ui-button>
         </div>
       </div>
     </div>
 
-    <div class="form-group" *ngIf="method !== 'GET' && method !== 'DELETE'">
-      <label class="form-label" for="body">Request Body (JSON)</label>
-      <textarea 
-        class="form-textarea"
-        id="body"
-        [(ngModel)]="body" 
-        name="body"
+    <div class="body-card" *ngIf="method !== 'GET' && method !== 'DELETE'">
+      <div class="section-header">
+        <div>
+          <h3>Request Body</h3>
+          <p>Use JSON or plain text. The last request is restored automatically.</p>
+        </div>
+      </div>
+      <app-monaco-editor
+        [value]="body"
+        language="json"
+        [height]="240"
         placeholder='{"key": "value"}'
-      ></textarea>
+        (valueChange)="body = $event; persistRequest()"></app-monaco-editor>
     </div>
+  </app-ui-card>
 
-    <div class="action-bar">
-      <button type="submit" class="btn btn-primary" [disabled]="!form.form.valid">
-        Send Request
-      </button>
-    </div>
-  </form>
-
-  <div class="response-section" *ngIf="response; else emptyState">
-    <div class="response-header">
-      <h2 class="response-title">Response</h2>
-      <span class="status-badge" 
-            [class.status-success]="status >= 200 && status < 300"
-            [class.status-warning]="status >= 300 && status < 400"
-            [class.status-error]="status >= 400">
-        Status: {{ status }}
+  <app-ui-card eyebrow="Response Inspector" title="Response Panel" subtitle="Status, headers, and body tabs with syntax-aware formatting and copy support.">
+    <div class="response-meta">
+      <span class="status-badge" [class.success]="getStatusTone() === 'success'" [class.warning]="getStatusTone() === 'warning'" [class.error]="getStatusTone() === 'error'">
+        {{ responseStatus === null ? 'Idle' : ('Status ' + responseStatus) }}
       </span>
+      <span>{{ responseTime }} ms</span>
+      <span>{{ statusMessage }}</span>
+      <app-ui-button variant="secondary" small icon="⎘" [disabled]="!responseBody" (pressed)="copyResponse()">Copy Response</app-ui-button>
     </div>
-    
-    <div class="response-container">
-      <div class="response-content">
-        <pre class="response-pre">{{ response | json }}</pre>
+
+    <div class="tab-row">
+      <button class="tab-btn" [class.active]="responseTab === 'body'" (click)="setResponseTab('body')">Body</button>
+      <button class="tab-btn" [class.active]="responseTab === 'headers'" (click)="setResponseTab('headers')">Headers</button>
+      <button class="tab-btn" [class.active]="responseTab === 'status'" (click)="setResponseTab('status')">Status</button>
+    </div>
+
+    <div *ngIf="responseStatus !== null; else emptyState" class="response-panels">
+      <div *ngIf="responseTab === 'body'" class="response-card">
+        <app-monaco-editor [value]="responseBody" [language]="responseLanguage" [height]="320" [readOnly]="true" [minimap]="false"></app-monaco-editor>
+      </div>
+
+      <div *ngIf="responseTab === 'headers'" class="response-card">
+        <div *ngIf="responseHeaders.length; else noHeaders" class="response-list">
+          <div class="response-row" *ngFor="let header of responseHeaders">
+            <strong>{{ header.key }}</strong>
+            <span>{{ header.value }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="responseTab === 'status'" class="response-card status-card">
+        <div class="status-grid">
+          <div class="status-metric">
+            <strong>{{ responseStatus }}</strong>
+            <span>HTTP status</span>
+          </div>
+          <div class="status-metric">
+            <strong>{{ responseTime }} ms</strong>
+            <span>Response time</span>
+          </div>
+          <div class="status-metric">
+            <strong>{{ responseHeaders.length }}</strong>
+            <span>Headers returned</span>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-
-  <ng-template #emptyState>
-    <div class="empty-state">
-      <span class="emoji">🚀</span>
-      <h3>Ready to test</h3>
-      <p>Enter a URL and click "Send Request" to get started</p>
-    </div>
-  </ng-template>
+  </app-ui-card>
 </div>
+
+<ng-template #noHeaders>
+  <p class="empty-copy">No response headers returned.</p>
+</ng-template>
+
+<ng-template #emptyState>
+  <div class="empty-state">
+    <div class="empty-icon">API</div>
+    <h3>Ready to test</h3>
+    <p>Send a request to inspect the response body, status, and headers here.</p>
+  </div>
+</ng-template>

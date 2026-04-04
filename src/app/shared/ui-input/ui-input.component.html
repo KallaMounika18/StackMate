@@ -1,0 +1,13 @@
+<label class="ui-input-wrapper">
+  <span *ngIf="label" class="ui-input-label">{{ label }}</span>
+  <input
+    class="ui-input-field"
+    [attr.type]="type"
+    [value]="value"
+    [placeholder]="placeholder"
+    [readOnly]="readonly"
+    [disabled]="disabled"
+    (input)="updateValue($any($event.target).value)"
+    (blur)="markTouched()">
+  <small *ngIf="hint" class="ui-input-hint">{{ hint }}</small>
+</label>

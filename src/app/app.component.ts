@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
 import { ThemeService } from './services/theme.service';
 
 @Component({
@@ -9,8 +8,19 @@ import { ThemeService } from './services/theme.service';
 })
 
 export class AppComponent {
-  title = '🚀 StackMate';
-  subtitle = 'Your All-in-One Dev Toolkit';
+  title = 'StackMate';
+  subtitle = 'Developer workspace for snippets, requests, diffs, transforms, and quick utilities.';
+  readonly githubUrl = 'https://github.com/';
+  readonly navItems = [
+    { route: '/pastebin', label: 'PasteBin', icon: '</>' },
+    { route: '/notes', label: 'Notes', icon: '[]' },
+    { route: '/code-comparator', label: 'Code Comparator', icon: 'Δ' },
+    { route: '/json-regex-tools', label: 'JSON & Regex', icon: '{}' },
+    { route: '/timestamp-uuid-tools', label: 'Timestamp & UUID', icon: 'ID' },
+    { route: '/api-tester', label: 'API Tester', icon: 'API' },
+    { route: '/curl-converter', label: 'cURL Converter', icon: 'cURL' },
+    { route: '/markdown-previewer', label: 'Markdown', icon: 'MD' }
+  ];
 
   constructor(public themeService: ThemeService) {}
 

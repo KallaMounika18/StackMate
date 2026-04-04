@@ -1,73 +1,231 @@
-<!-- code-comparator.component.html -->
-<div class="container">
-  <div class="header">
-    <h1 class="title">
-      <span>🔍</span>
-      Enhanced Code Comparator
-    </h1>
-    <p class="subtitle">Advanced side-by-side code comparison with intelligent diffing</p>
-  </div>
+<div class="comparator-shell">
+  <section class="hero-card">
+    <div class="hero-copy">
+      <div class="eyebrow">Developer Diff Workspace</div>
+      <h1 class="title">Code Comparator</h1>
+      <p class="subtitle">
+        Monaco-powered comparison with realtime diffing, local history, shareable sessions, and keyboard-first controls.
+      </p>
+    </div>
 
-  <div class="stats-bar">
-    <div class="stat">
-      <div class="stat-number">{{ leftLineCount }}</div>
-      <div class="stat-label">Original Lines</div>
+    <div class="hero-status">
+      <div class="status-pill" [class.processing]="isProcessing">
+        <span class="status-dot"></span>
+        <span>{{ statusMessage }}</span>
+      </div>
+      <div class="status-meta">
+        <span>Theme: {{ editorThemeLabel }}</span>
+        <span>Detected: {{ detectedLanguageLabel }}</span>
+      </div>
     </div>
-    <div class="stat">
-      <div class="stat-number">{{ rightLineCount }}</div>
-      <div class="stat-label">Modified Lines</div>
-    </div>
-    <div class="stat">
-      <div class="stat-number">{{ diffCount }}</div>
-      <div class="stat-label">Differences</div>
-    </div>
-  </div>
+  </section>
 
-  <div class="input-section">
-    <div class="code-panel">
-      <h3 class="panel-title">📄 Original Code</h3>
-      <textarea [(ngModel)]="leftCode" class="code-textarea" placeholder="Paste your original code here..."></textarea>
-    </div>
-    <div class="code-panel">
-      <h3 class="panel-title">✨ Modified Code</h3>
-      <textarea [(ngModel)]="rightCode" class="code-textarea" placeholder="Paste your modified code here..."></textarea>
-    </div>
-  </div>
-
-  <div class="action-bar">
-    <button class="btn btn-primary" (click)="compareCode()" [disabled]="!canCompare">
-      🔍 Compare Code
-    </button>
-    <button class="btn btn-secondary" (click)="clearAll()">
-      🧹 Clear All
-    </button>
-    <button class="btn btn-secondary" (click)="swapCode()" [disabled]="!hasAnyCode">
-      🔄 Swap Sides
-    </button>
-  </div>
-
-  <div *ngIf="showResults" class="diff-container">
-    <div class="diff-header">
-      <h3 class="diff-title">🎯 Comparison Results</h3>
-      <button class="btn btn-primary collapse-toggle" (click)="toggleCollapse()">
-        {{ hideUnchanged ? 'Show All Lines' : 'Hide Unchanged Lines' }}
+  <section class="toolbar-card">
+    <div class="toolbar-group">
+      <button class="icon-btn" type="button" (click)="swapSides()" [disabled]="!canOperate" title="Swap original and modified code">
+        ⇄
+      </button>
+      <button class="icon-btn" type="button" (click)="clearAll()" [disabled]="!canOperate" title="Clear both editors (Ctrl/Cmd + L)">
+        ⌫
+      </button>
+      <button class="icon-btn" type="button" (click)="compareNow()" [disabled]="!monacoReady" title="Force compare now (Ctrl/Cmd + Enter)">
+        ⟳
+      </button>
+      <button class="icon-btn" type="button" (click)="copyDiff()" [disabled]="!hasCompared" title="Copy unified diff">
+        ⎘
+      </button>
+      <button class="icon-btn" type="button" (click)="downloadDiff()" [disabled]="!hasCompared" title="Download unified diff">
+        ⇩
+      </button>
+      <button class="icon-btn" type="button" (click)="shareComparison()" [disabled]="!canOperate" title="Store and copy share link">
+        ↗
       </button>
     </div>
-    <div class="diff-viewer">
-      <div class="diff-side">
-        <h4>📄 Original</h4>
-        <div [innerHTML]="leftDiffHtml"></div>
+
+    <div class="toolbar-group toggles">
+      <button class="toggle-chip" type="button" [class.active]="ignoreWhitespace" (click)="toggleIgnoreWhitespace()" title="Ignore whitespace">
+        Whitespace
+      </button>
+      <button class="toggle-chip" type="button" [class.active]="wordWrapEnabled" (click)="toggleWordWrap()" title="Toggle word wrap">
+        Wrap
+      </button>
+      <button class="toggle-chip" type="button" [class.active]="splitMode === 'horizontal'" (click)="toggleSplitMode()" title="Toggle vertical or horizontal editor split">
+        {{ splitMode === 'vertical' ? 'Vertical Split' : 'Horizontal Split' }}
+      </button>
+      <button class="toggle-chip" type="button" [class.active]="showUnchanged" (click)="toggleShowUnchanged()" title="Toggle unchanged lines in the diff output">
+        {{ showUnchanged ? 'Full Context' : 'Compact Context' }}
+      </button>
+    </div>
+  </section>
+
+  <section class="stats-grid">
+    <article class="stat-card">
+      <span class="stat-kicker">Original</span>
+      <strong>{{ originalLineCount }}</strong>
+      <span>Lines</span>
+    </article>
+    <article class="stat-card">
+      <span class="stat-kicker">Modified</span>
+      <strong>{{ modifiedLineCount }}</strong>
+      <span>Lines</span>
+    </article>
+    <article class="stat-card positive">
+      <span class="stat-kicker">Additions</span>
+      <strong>+{{ additionsCount }}</strong>
+      <span>Inserted lines</span>
+    </article>
+    <article class="stat-card negative">
+      <span class="stat-kicker">Deletions</span>
+      <strong>-{{ deletionsCount }}</strong>
+      <span>Removed lines</span>
+    </article>
+    <article class="stat-card warning">
+      <span class="stat-kicker">Modifications</span>
+      <strong>{{ modificationsCount }}</strong>
+      <span>Changed pairs</span>
+    </article>
+  </section>
+
+  <section class="workspace-card">
+    <div class="editor-grid" [class.horizontal]="splitMode === 'horizontal'">
+      <article class="editor-card">
+        <div class="editor-card-head">
+          <div>
+            <div class="editor-label">Original</div>
+            <h2>Source</h2>
+          </div>
+          <span class="language-pill">{{ getLanguageLabel(originalLanguage) }}</span>
+        </div>
+        <div #originalEditorHost class="editor-host" [class.hidden]="!monacoReady || monacoFailed"></div>
+        <textarea
+          *ngIf="!monacoReady || monacoFailed"
+          class="fallback-editor"
+          [value]="originalCode"
+          (input)="onFallbackOriginalChange($any($event.target).value)"
+          placeholder="Paste your original code here..."></textarea>
+      </article>
+
+      <article class="editor-card accent">
+        <div class="editor-card-head">
+          <div>
+            <div class="editor-label">Modified</div>
+            <h2>Target</h2>
+          </div>
+          <span class="language-pill">{{ getLanguageLabel(modifiedLanguage) }}</span>
+        </div>
+        <div #modifiedEditorHost class="editor-host" [class.hidden]="!monacoReady || monacoFailed"></div>
+        <textarea
+          *ngIf="!monacoReady || monacoFailed"
+          class="fallback-editor"
+          [value]="modifiedCode"
+          (input)="onFallbackModifiedChange($any($event.target).value)"
+          placeholder="Paste your modified code here..."></textarea>
+      </article>
+    </div>
+  </section>
+
+  <section class="secondary-grid">
+    <article class="history-card">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Recent Sessions</div>
+          <h2>Local History</h2>
+        </div>
       </div>
-      <div class="diff-side">
-        <h4>✨ Modified</h4>
-        <div [innerHTML]="rightDiffHtml"></div>
+
+      <div *ngIf="comparisonHistory.length; else emptyHistory" class="history-list">
+        <button
+          *ngFor="let item of comparisonHistory; trackBy: trackHistoryItem"
+          type="button"
+          class="history-item"
+          (click)="restoreFromHistory(item)">
+          <div class="history-main">
+            <strong>{{ getLanguageLabel(item.originalLanguage) }} → {{ getLanguageLabel(item.modifiedLanguage) }}</strong>
+            <span>{{ formatHistoryDate(item.createdAt) }}</span>
+          </div>
+          <div class="history-stats">
+            <span class="positive">+{{ item.additions }}</span>
+            <span class="negative">-{{ item.deletions }}</span>
+            <span class="warning">~{{ item.modifications }}</span>
+          </div>
+        </button>
+      </div>
+    </article>
+
+    <article class="share-card">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Portable Review</div>
+          <h2>Share & Export</h2>
+        </div>
+      </div>
+
+      <div class="share-stack">
+        <div class="share-row">
+          <label class="share-label">Stored session link</label>
+          <input [value]="shareUrl || 'Generate a share link to keep a restorable comparison URL.'" readonly>
+        </div>
+        <div class="share-row">
+          <label class="share-label">Unified diff preview</label>
+          <textarea [value]="hasCompared ? unifiedDiff : 'Your unified diff will appear here once comparison runs.'" readonly></textarea>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="diff-card">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Review Surface</div>
+        <h2>Comparison Output</h2>
+      </div>
+      <div class="diff-legend">
+        <span class="legend-item positive">Add</span>
+        <span class="legend-item negative">Remove</span>
+        <span class="legend-item warning">Modify</span>
       </div>
     </div>
-  </div>
 
-  <div *ngIf="!showResults" class="empty-state">
-    <span class="emoji">🔍</span>
-    <h3>Ready to compare!</h3>
-    <p>Add code to both sections to see the differences</p>
-  </div>
+    <div *ngIf="hasCompared; else emptyState" class="diff-table">
+      <div
+        *ngFor="let row of comparisonRows; trackBy: trackComparisonRow"
+        class="diff-row"
+        [class.added]="row.type === 'added'"
+        [class.removed]="row.type === 'removed'"
+        [class.modified]="row.type === 'modified'"
+        [class.unchanged]="row.type === 'unchanged'"
+        [class.collapsed]="row.type === 'collapsed'">
+        <ng-container *ngIf="row.type !== 'collapsed'; else collapsedRow">
+          <div class="line-number">{{ row.originalLineNumber || '·' }}</div>
+          <pre class="diff-code original">{{ row.originalContent || ' ' }}</pre>
+          <div class="line-number">{{ row.modifiedLineNumber || '·' }}</div>
+          <pre class="diff-code modified">{{ row.modifiedContent || ' ' }}</pre>
+        </ng-container>
+
+        <ng-template #collapsedRow>
+          <div class="collapsed-row">{{ row.summary }}</div>
+        </ng-template>
+      </div>
+    </div>
+  </section>
 </div>
+
+<ng-template #emptyState>
+  <div class="empty-state">
+    <div class="empty-icon">Δ</div>
+    <h3>Ready for a side-by-side review</h3>
+    <p>
+      Start typing in either Monaco editor. StackMate compares in real time, tracks additions and deletions, and keeps the last five sessions locally.
+    </p>
+    <div class="empty-hints">
+      <span>Ctrl/Cmd + Enter to compare instantly</span>
+      <span>Ctrl/Cmd + L to clear</span>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #emptyHistory>
+  <div class="mini-empty-state">
+    <span>Recent comparisons will appear here after your first diff run.</span>
+  </div>
+</ng-template>

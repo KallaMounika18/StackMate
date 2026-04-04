@@ -1,0 +1,10 @@
+<div class="monaco-shell" [style.height.px]="height">
+  <div #editorHost class="editor-host" [class.hidden]="!monacoReady"></div>
+  <textarea
+    *ngIf="!monacoReady"
+    class="fallback-editor"
+    [value]="value"
+    [placeholder]="placeholder"
+    [readOnly]="readOnly"
+    (input)="valueChange.emit($any($event.target).value)"></textarea>
+</div>

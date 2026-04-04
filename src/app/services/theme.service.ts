@@ -8,7 +8,7 @@ export type Theme = 'light' | 'dark';
   providedIn: 'root'
 })
 export class ThemeService {
-  private readonly THEME_KEY = 'devnotes-theme';
+  private readonly THEME_KEY = 'stackmate-theme';
   private themeSubject = new BehaviorSubject<Theme>('dark');
   
   public theme$ = this.themeSubject.asObservable();
@@ -34,13 +34,13 @@ export class ThemeService {
 
   private initializeTheme(): void {
     const savedTheme = localStorage.getItem(this.THEME_KEY) as Theme;
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+    const initialTheme = savedTheme || 'dark';
     this.setTheme(initialTheme);
   }
 
   private updateDocumentClass(theme: Theme): void {
     document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.classList.remove('dark', 'light');
+    document.documentElement.classList.add(theme);
   }
 }

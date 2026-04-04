@@ -1,103 +1,60 @@
-<div class="markdown-previewer">
-  <div class="header">
-    <h1 class="title">📝 Markdown Previewer</h1>
-    <p class="subtitle">Write and preview Markdown in real-time</p>
-  </div>
+<div class="markdown-shell" [class.fullscreen]="isFullscreen">
+  <app-ui-card eyebrow="Writer Studio" title="Markdown Previewer" subtitle="VS Code-style writing flow with Monaco editing, split resize, and polished preview typography.">
+    <div class="topbar">
+      <div class="view-switch">
+        <button class="view-btn" [class.active]="viewMode === 'split'" (click)="setViewMode('split')">Split</button>
+        <button class="view-btn" [class.active]="viewMode === 'edit'" (click)="setViewMode('edit')">Editor</button>
+        <button class="view-btn" [class.active]="viewMode === 'preview'" (click)="setViewMode('preview')">Preview</button>
+      </div>
 
-  <div class="markdown-toolbar">
-    <div class="toolbar-left">
-      <div class="layout-toggle">
-        <button 
-          class="layout-btn" 
-          [class.active]="viewMode === 'split'"
-          (click)="setViewMode('split')"
-          title="Split View"
-        >
-          📊 Split
-        </button>
-        <button 
-          class="layout-btn" 
-          [class.active]="viewMode === 'edit'"
-          (click)="setViewMode('edit')"
-          title="Editor Only"
-        >
-          ✏️ Edit
-        </button>
-        <button 
-          class="layout-btn" 
-          [class.active]="viewMode === 'preview'"
-          (click)="setViewMode('preview')"
-          title="Preview Only"
-        >
-          👁️ Preview
-        </button>
+      <div class="toolbar-actions">
+        <app-ui-button variant="ghost" small icon="#" title="Insert heading" (pressed)="insertTemplate('heading')">Heading</app-ui-button>
+        <app-ui-button variant="ghost" small icon="•" title="Insert list" (pressed)="insertTemplate('list')">List</app-ui-button>
+        <app-ui-button variant="ghost" small icon="↗" title="Insert link" (pressed)="insertTemplate('link')">Link</app-ui-button>
+        <app-ui-button variant="ghost" small icon="{}" title="Insert code block" (pressed)="insertTemplate('code')">Code</app-ui-button>
+        <app-ui-button variant="secondary" small icon="⎘" title="Copy markdown" (pressed)="copyMarkdown()">Copy</app-ui-button>
+        <app-ui-button variant="secondary" small icon="⛶" title="Toggle fullscreen" (pressed)="toggleFullscreen()">
+          {{ isFullscreen ? 'Exit Fullscreen' : 'Fullscreen' }}
+        </app-ui-button>
+        <app-ui-button variant="danger" small icon="✕" title="Clear content" (pressed)="clearContent()">Clear</app-ui-button>
       </div>
     </div>
 
-    <div class="toolbar-right">
-      <button class="btn btn-secondary btn-small" (click)="insertTemplate('heading')">
-        # Heading
-      </button>
-      <button class="btn btn-secondary btn-small" (click)="insertTemplate('list')">
-        📋 List
-      </button>
-      <button class="btn btn-secondary btn-small" (click)="insertTemplate('link')">
-        🔗 Link
-      </button>
-      <button class="btn btn-secondary btn-small" (click)="insertTemplate('code')">
-        💻 Code
-      </button>
-      <button class="btn btn-secondary btn-small" (click)="clearContent()">
-        🗑️ Clear
-      </button>
-      <span class="word-count">
-        {{ getWordCount() }} words, {{ getCharCount() }} chars
-      </span>
+    <div class="meta-row">
+      <span class="status-pill">{{ statusMessage }}</span>
+      <span>{{ getWordCount() }} words</span>
+      <span>{{ getCharCount() }} chars</span>
+      <label *ngIf="viewMode === 'split'" class="split-control">
+        <span>Split</span>
+        <input type="range" min="30" max="70" [value]="splitRatio" (input)="updateSplitRatio($any($event.target).value)">
+      </label>
     </div>
-  </div>
+  </app-ui-card>
 
-  <div class="markdown-container" 
-       [class.editor-only]="viewMode === 'edit'"
-       [class.preview-only]="viewMode === 'preview'">
-    
-    <div class="editor-panel" *ngIf="viewMode !== 'preview'">
-      <div class="panel-header">
-        <span class="panel-icon">✏️</span>
-        Markdown Editor
-      </div>
-      <textarea 
-        class="markdown-editor"
-        [(ngModel)]="markdownContent"
-        #markdownEditor
-        placeholder="# Welcome to Markdown Previewer!
+  <app-ui-card compact="true">
+    <div class="workspace" [class.editor-only]="viewMode === 'edit'" [class.preview-only]="viewMode === 'preview'">
+      <section class="panel editor-panel" *ngIf="viewMode !== 'preview'" [style.flex-basis.%]="viewMode === 'split' ? splitRatio : 100">
+        <header class="panel-header">
+          <span>Markdown Editor</span>
+        </header>
+        <app-monaco-editor
+          [value]="markdownContent"
+          language="markdown"
+          [height]="isFullscreen ? 640 : 460"
+          placeholder="Write your markdown here..."
+          (valueChange)="markdownContent = $event"></app-monaco-editor>
+      </section>
 
-Start typing your Markdown here...
-
-## Features
-- Live preview
-- Word count
-- Template insertion
-- Multiple view modes
-
-**Bold text** and *italic text*
-`inline code` and code blocks
-
-> Blockquotes look great too!
-
-[Links](https://example.com) and images work perfectly."
-      ></textarea>
-    </div>
-
-    <div class="preview-panel" *ngIf="viewMode !== 'edit'">
-      <div class="panel-header">
-        <span class="panel-icon">👁️</span>
-        Live Preview
-      </div>
-      <div class="markdown-preview">
-        <div class="preview-content">
-          <markdown [data]="markdownContent"></markdown>
+      <section class="panel preview-panel" *ngIf="viewMode !== 'edit'" [style.flex-basis.%]="viewMode === 'split' ? 100 - splitRatio : 100">
+        <header class="panel-header">
+          <span>Live Preview</span>
+        </header>
+        <div class="preview-scroll">
+          <div class="preview-content">
+            <markdown [data]="markdownContent"></markdown>
+          </div>
         </div>
-      </div>
+      </section>
     </div>
-  </div>
+  </app-ui-card>
 </div>

@@ -1,222 +1,142 @@
-<div class="container">
-  <h2 class="title">
-    <span>🕒</span>
-    Timestamp & UUID Tools
-  </h2>
-
-  <div class="tools-nav">
-    <button 
-      (click)="activeTab = 'timestamp'" 
-      class="tab-btn"
-      [class.active]="activeTab === 'timestamp'">
-      ⏰ Timestamp Converter
-    </button>
-    <button 
-      (click)="activeTab = 'uuid'" 
-      class="tab-btn"
-      [class.active]="activeTab === 'uuid'">
-      🆔 UUID Generator
-    </button>
-  </div>
-
-  <!-- Timestamp Tool -->
-  <div *ngIf="activeTab === 'timestamp'" class="tool-section">
-    <div class="stats-bar">
-      <div class="stat">
-        <div class="stat-number">{{ getCurrentEpoch() }}</div>
-        <div class="stat-label">Current Epoch</div>
-      </div>
-      <div class="stat">
-        <div class="stat-number">{{ currentYear }}</div>
-        <div class="stat-label">Current Year</div>
-      </div>
-      <div class="stat">
-        <div class="stat-number">🕐</div>
-        <div class="stat-label">Live Time</div>
-      </div>
+<div class="time-shell">
+  <app-ui-card eyebrow="Time Utilities" title="Timestamp & UUID Tools" subtitle="Timezone-aware timestamp conversions and cleaner UUID generation in the shared dark UI.">
+    <div class="tab-row">
+      <button class="tab-btn" [class.active]="activeTab === 'timestamp'" (click)="activeTab = 'timestamp'">Timestamp</button>
+      <button class="tab-btn" [class.active]="activeTab === 'uuid'" (click)="activeTab = 'uuid'">UUID</button>
     </div>
+  </app-ui-card>
 
-    <div class="converters-row">
-       <div class="converter-section" style="margin-bottom: 3rem">
-      <h3 class="section-title" style="margin-bottom: 1.5rem">🔄 Epoch to Date Converter</h3>
-      <div class="conversion-row">
-        <div class="input-group">
-          <label class="input-label">⏰ Epoch Timestamp (seconds)</label>
-          <input 
-            type="number" 
-            [(ngModel)]="epochInput" 
-            placeholder="1640995200"
-            class="input-field fixed-width"
-            (input)="convertEpochToDate()">
+  <ng-container *ngIf="activeTab === 'timestamp'">
+    <app-ui-card eyebrow="Live Context" title="Timestamp Converter" subtitle="Convert between epoch seconds and local date/time with explicit timezone context.">
+      <div class="stats-row">
+        <div class="metric-card">
+          <strong>{{ getCurrentEpoch() }}</strong>
+          <span>Current epoch</span>
         </div>
-        <div class="conversion-arrow">→</div>
-        <div class="result-group">
-          <label class="input-label">📅 Date & Time</label>
-          <input 
-            type="text"
-            class="input-field fixed-width"
-            [value]="epochToDateResult || 'Enter epoch timestamp'"
-            readonly>
+        <div class="metric-card">
+          <strong>{{ getTimezoneName() }}</strong>
+          <span>Timezone</span>
+        </div>
+        <div class="metric-card">
+          <strong>{{ getUtcOffset() }}</strong>
+          <span>UTC offset</span>
+        </div>
+        <div class="metric-card">
+          <strong>{{ currentDateTime | date:'mediumTime' }}</strong>
+          <span>Live local time</span>
         </div>
       </div>
-       </div>
 
-      <div class="converter-section" style="margin-bottom: 3rem">
-        <h3 class="section-title" style="margin-bottom: 1.5rem">🔄 Date to Epoch Converter</h3>
-        <div class="conversion-row">
-          <div class="input-group">
-            <label class="input-label">📅 Date & Time</label>
-            <input 
-              type="datetime-local" 
-              [(ngModel)]="dateInput" 
-              class="input-field fixed-width"
-              (change)="convertDateToEpoch()">
-          </div>
-          <div class="conversion-arrow">→</div>
-          <div class="result-group">
-            <label class="input-label">⏰ Epoch Timestamp</label>
-            <input 
-              type="text"
-              class="input-field fixed-width"
-              [value]="dateToEpochResult || 'Select date & time'"
-              readonly>
-          </div>
+      <div class="converter-grid">
+        <div class="converter-card">
+          <h3>Epoch to Date</h3>
+          <label class="field-group">
+            <span>Epoch timestamp (seconds)</span>
+            <input type="number" [(ngModel)]="epochInput" placeholder="1640995200" (input)="convertEpochToDate()">
+          </label>
+          <label class="field-group">
+            <span>Date & time</span>
+            <input type="text" [value]="epochToDateResult || 'Enter epoch timestamp'" readonly>
+          </label>
+          <app-ui-button variant="secondary" icon="⎘" [disabled]="!epochToDateResult" (pressed)="copyDate()">Copy Date</app-ui-button>
+        </div>
+
+        <div class="converter-card">
+          <h3>Date to Epoch</h3>
+          <label class="field-group">
+            <span>Date & time</span>
+            <input type="datetime-local" [(ngModel)]="dateInput" (change)="convertDateToEpoch()">
+          </label>
+          <label class="field-group">
+            <span>Epoch timestamp</span>
+            <input type="text" [value]="dateToEpochResult || 'Select date & time'" readonly>
+          </label>
+          <app-ui-button variant="secondary" icon="⎘" [disabled]="!dateToEpochResult" (pressed)="copyEpoch()">Copy Epoch</app-ui-button>
         </div>
       </div>
-    </div>
 
-    <div class="action-buttons" style="margin-bottom: 3rem">
-      <button 
-        (click)="setCurrentTime()" 
-        class="button primary-btn">
-        🕐 Use Current Time
-      </button>
-      <button 
-        (click)="copyEpoch()" 
-        class="button secondary-btn"
-        [disabled]="!dateToEpochResult">
-        📋 Copy Epoch
-      </button>
-      <button 
-        (click)="copyDate()" 
-        class="button secondary-btn"
-        [disabled]="!epochToDateResult">
-        📋 Copy Date
-      </button>
-    </div>
+      <div class="actions-row">
+        <app-ui-button variant="primary" icon="◷" (pressed)="setCurrentTime()">Use Current Time</app-ui-button>
+        <app-ui-button variant="ghost" icon="⌘" (pressed)="copyTimezone()">Copy Timezone</app-ui-button>
+        <span class="status-text">{{ statusMessage }}</span>
+      </div>
 
-    <!-- Quick Presets -->
-    <div class="presets-section">
-      <h4 class="presets-title" style="margin-bottom: 1.5rem">⚡ Quick Presets</h4>
-      <div class="presets-grid">
-        <button 
-          *ngFor="let preset of timestampPresets" 
-          (click)="applyTimestampPreset(preset)"
-          class="preset-btn">
+      <div class="preset-row">
+        <app-ui-button *ngFor="let preset of timestampPresets" variant="secondary" small (pressed)="applyTimestampPreset(preset)">
           {{ preset.label }}
-        </button>
+        </app-ui-button>
       </div>
-    </div>
-  </div>
-   <!-- UUID Tool -->
-      <div *ngIf="activeTab === 'uuid'" class="tool-section">
-        <div class="stats-bar">
-          <div class="stat">
-            <div class="stat-number">{{ generatedUuids.length }}</div>
-            <div class="stat-label">Generated UUIDs</div>
-          </div>
-          <div class="stat">
-            <div class="stat-number">V4</div>
-            <div class="stat-label">UUID Version</div>
-          </div>
-          <div class="stat">
-            <div class="stat-number">🎲</div>
-            <div class="stat-label">Random IDs</div>
-          </div>
+    </app-ui-card>
+  </ng-container>
+
+  <ng-container *ngIf="activeTab === 'uuid'">
+    <app-ui-card eyebrow="Identifier Factory" title="UUID Generator" subtitle="Generate and validate IDs with cleaner controls and copy-first workflows.">
+      <div class="stats-row uuid-stats">
+        <div class="metric-card">
+          <strong>{{ generatedUuids.length }}</strong>
+          <span>Generated UUIDs</span>
         </div>
-
-        <div class="uuid-generator">
-          <h3 class="section-title">🆔 UUID Generator</h3>
-          
-          <div class="generator-controls">
-            <div class="input-group">
-              <label class="input-label">📊 Generate Count</label>
-              <input 
-                type="number" 
-                [(ngModel)]="uuidCount" 
-                min="1" 
-                max="100"
-                placeholder="1"
-                class="input-field number-input">
-            </div>
-            
-            <div class="input-group">
-              <label class="input-label">🎨 Format</label>
-              <select [(ngModel)]="uuidFormat" class="select-field">
-                <option value="standard">Standard (with dashes)</option>
-                <option value="compact">Compact (no dashes)</option>
-                <option value="uppercase">Uppercase</option>
-                <option value="braces">With Braces {{ '{' }}{{ '}' }}</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="action-buttons">
-            <button 
-              (click)="generateUuids()" 
-              class="button primary-btn">
-              🎲 Generate UUID{{ uuidCount > 1 ? 's' : '' }}
-            </button>
-            <button 
-              (click)="copyAllUuids()" 
-              class="button secondary-btn"
-              [disabled]="generatedUuids.length === 0">
-              📋 Copy All
-            </button>
-            <button 
-              (click)="clearUuids()" 
-              class="button secondary-btn"
-              [disabled]="generatedUuids.length === 0">
-              🧹 Clear List
-            </button>
-          </div>
-
-          <div *ngIf="generatedUuids.length > 0" class="uuid-list">
-            <h4 class="list-title">📝 Generated UUIDs</h4>
-            <div class="uuid-items">
-              <div *ngFor="let uuid of generatedUuids; trackBy: trackByUuid" class="uuid-item">
-                <div class="uuid-value">{{ formatUuid(uuid.id) }}</div>
-                <div class="uuid-actions">
-                  <button 
-                    (click)="copyUuid(formatUuid(uuid.id))" 
-                    class="copy-btn"
-                    title="Copy UUID">
-                    📋
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- UUID Validation -->
-          <div class="validation-section">
-            <h4 class="section-title">✅ UUID Validator</h4>
-            <div class="input-group">
-              <input 
-                [(ngModel)]="uuidToValidate" 
-                placeholder="Paste UUID to validate..."
-                class="input-field"
-                (input)="validateUuid()">
-            </div>
-            <div *ngIf="uuidToValidate" class="validation-result">
-              <span [class]="uuidValidationResult.valid ? 'valid' : 'invalid'">
-                {{ uuidValidationResult.valid ? '✅ Valid UUID' : '❌ Invalid UUID' }}
-              </span>
-              <div *ngIf="uuidValidationResult.version" class="uuid-info">
-                Version: {{ uuidValidationResult.version }}
-              </div>
-            </div>
-          </div>
+        <div class="metric-card">
+          <strong>V4</strong>
+          <span>Version</span>
         </div>
-  </div>
+        <div class="metric-card">
+          <strong>{{ uuidFormat }}</strong>
+          <span>Output format</span>
+        </div>
+      </div>
+
+      <div class="uuid-grid">
+        <label class="field-group">
+          <span>Generate count</span>
+          <input type="number" [(ngModel)]="uuidCount" min="1" max="100">
+        </label>
+
+        <label class="field-group">
+          <span>Format</span>
+          <select [(ngModel)]="uuidFormat">
+            <option value="standard">Standard</option>
+            <option value="compact">Compact</option>
+            <option value="uppercase">Uppercase</option>
+            <option value="braces">Braces</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="actions-row">
+        <app-ui-button variant="primary" icon="＋" (pressed)="generateUuids()">Generate</app-ui-button>
+        <app-ui-button variant="secondary" icon="⎘" [disabled]="generatedUuids.length === 0" (pressed)="copyAllUuids()">Copy All</app-ui-button>
+        <app-ui-button variant="danger" icon="✕" [disabled]="generatedUuids.length === 0" (pressed)="clearUuids()">Clear List</app-ui-button>
+        <span class="status-text">{{ statusMessage }}</span>
+      </div>
+
+      <div *ngIf="generatedUuids.length; else emptyUuidState" class="uuid-list">
+        <article *ngFor="let uuid of generatedUuids; trackBy: trackByUuid" class="uuid-item">
+          <div>
+            <strong>{{ formatUuid(uuid.id) }}</strong>
+            <span>{{ uuid.timestamp | date:'medium' }}</span>
+          </div>
+          <app-ui-button variant="ghost" small icon="⎘" (pressed)="copyUuid(formatUuid(uuid.id))">Copy</app-ui-button>
+        </article>
+      </div>
+
+      <div class="validator-card">
+        <label class="field-group">
+          <span>UUID validator</span>
+          <input [(ngModel)]="uuidToValidate" placeholder="Paste UUID to validate..." (input)="validateUuid()">
+        </label>
+        <div *ngIf="uuidToValidate" class="validation-result" [class.valid]="uuidValidationResult.valid" [class.invalid]="!uuidValidationResult.valid">
+          {{ uuidValidationResult.valid ? 'Valid UUID' : 'Invalid UUID' }}
+          <span *ngIf="uuidValidationResult.version">• Version {{ uuidValidationResult.version }}</span>
+        </div>
+      </div>
+    </app-ui-card>
+  </ng-container>
 </div>
+
+<ng-template #emptyUuidState>
+  <div class="empty-state">
+    <div class="empty-icon">ID</div>
+    <p>Generate UUIDs to populate the list and enable bulk copy.</p>
+  </div>
+</ng-template>

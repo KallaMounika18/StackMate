@@ -1,166 +1,162 @@
-<div class="container">
-      <h2 class="title">
-        <span>🧹</span>
-        JSON & Regex Tools
-      </h2>
+<div class="json-shell">
+  <app-ui-card eyebrow="Structured Data" title="JSON & Regex Tools" subtitle="Realtime JSON validation, collapsible tree inspection, and regex testing in one consistent workspace.">
+    <div class="tab-row">
+      <button class="tab-btn" [class.active]="activeTab === 'json'" (click)="activeTab = 'json'">JSON Workspace</button>
+      <button class="tab-btn" [class.active]="activeTab === 'regex'" (click)="activeTab = 'regex'">Regex Tester</button>
+    </div>
+  </app-ui-card>
 
-      <div class="tools-nav">
-        <button 
-          (click)="activeTab = 'json'" 
-          class="tab-btn"
-          [class.active]="activeTab === 'json'">
-          📋 JSON Formatter
-        </button>
-        <button 
-          (click)="activeTab = 'regex'" 
-          class="tab-btn"
-          [class.active]="activeTab === 'regex'">
-          🔍 Regex Tester
-        </button>
-      </div>
-
-      <!-- JSON Formatter Tab -->
-      <div *ngIf="activeTab === 'json'" class="tool-section">
-        <div class="stats-bar">
-          <div class="stat">
-            <div class="stat-number">{{ getJsonStats().characters }}</div>
-            <div class="stat-label">Characters</div>
-          </div>
-          <div class="stat">
-            <div class="stat-number">{{ getJsonStats().lines }}</div>
-            <div class="stat-label">Lines</div>
-          </div>
-          <div class="stat">
-            <div class="stat-number">{{ jsonValid ? '✅' : '❌' }}</div>
-            <div class="stat-label">Valid JSON</div>
-          </div>
+  <ng-container *ngIf="activeTab === 'json'">
+    <app-ui-card eyebrow="JSON Validation" title="JSON Formatter" subtitle="Monaco-powered editing with realtime validation markers and a tree view explorer.">
+      <div class="stats-row">
+        <div class="metric-card">
+          <strong>{{ getJsonStats().characters }}</strong>
+          <span>Characters</span>
         </div>
-
-        <div class="input-section">
-          <h3 class="section-title">📝 Input JSON</h3>
-          <textarea 
-            [(ngModel)]="jsonInput" 
-            placeholder='Paste your JSON here... {"example": "data"}'
-            class="code-textarea"
-            (input)="formatJson()"></textarea>
+        <div class="metric-card">
+          <strong>{{ getJsonStats().lines }}</strong>
+          <span>Lines</span>
         </div>
-
-        <div class="action-buttons">
-          <button 
-            (click)="formatJson()" 
-            class="button primary-btn"
-            [disabled]="!jsonInput.trim()">
-            ✨ Format JSON
-          </button>
-          <button 
-            (click)="minifyJson()" 
-            class="button secondary-btn"
-            [disabled]="!jsonInput.trim()">
-            🗜️ Minify
-          </button>
-          <button 
-            (click)="copyJsonResult()" 
-            class="button secondary-btn"
-            [disabled]="!jsonOutput">
-            📋 Copy Result
-          </button>
+        <div class="metric-card">
+          <strong>{{ getJsonStats().nodes }}</strong>
+          <span>Nodes</span>
         </div>
-
-        <div *ngIf="jsonError" class="error-message">
-          ❌ JSON Error: {{ jsonError }}
-        </div>
-
-        <div *ngIf="jsonOutput" class="output-section">
-          <h3 class="section-title">✨ Formatted Result</h3>
-          <pre class="json-output">{{ jsonOutput }}</pre>
+        <div class="metric-card" [class.valid]="jsonValid" [class.invalid]="jsonInput && !jsonValid">
+          <strong>{{ jsonValid ? 'Valid' : (jsonInput ? 'Error' : 'Idle') }}</strong>
+          <span>Validation</span>
         </div>
       </div>
 
-      <!-- Regex Tester Tab -->
-      <div *ngIf="activeTab === 'regex'" class="tool-section">
-        <div class="stats-bar">
-          <div class="stat">
-            <div class="stat-number">{{ regexMatches.length }}</div>
-            <div class="stat-label">Matches Found</div>
-          </div>
-          <div class="stat">
-            <div class="stat-number">{{ testString.length }}</div>
-            <div class="stat-label">Test String Length</div>
-          </div>
-          <div class="stat">
-            <div class="stat-number">{{ regexValid ? '✅' : '❌' }}</div>
-            <div class="stat-label">Valid Regex</div>
-          </div>
+      <app-monaco-editor
+        [value]="jsonInput"
+        language="json"
+        [height]="340"
+        [markers]="jsonMarkers"
+        placeholder='Paste your JSON here... {"stackmate": true}'
+        (valueChange)="onJsonChange($event)"
+        (languageDetected)="onJsonLanguageDetected($event)"></app-monaco-editor>
+
+      <div class="action-row">
+        <app-ui-button variant="primary" icon="{}" [disabled]="!jsonInput.trim()" title="Format JSON" (pressed)="formatJson()">
+          Format
+        </app-ui-button>
+        <app-ui-button variant="secondary" icon="⋯" [disabled]="!jsonInput.trim()" title="Minify JSON" (pressed)="minifyJson()">
+          Minify
+        </app-ui-button>
+        <app-ui-button variant="ghost" icon="⎘" [disabled]="!jsonOutput" title="Copy formatted JSON" (pressed)="copyJsonResult()">
+          Copy Output
+        </app-ui-button>
+      </div>
+
+      <div *ngIf="jsonError" class="error-banner">
+        {{ jsonError }}
+      </div>
+    </app-ui-card>
+
+    <div class="json-grid">
+      <app-ui-card eyebrow="Formatted Output" title="Output" subtitle="Formatted JSON ready to copy.">
+        <pre class="json-output">{{ jsonOutput || 'Formatted JSON will appear here once validation succeeds.' }}</pre>
+      </app-ui-card>
+
+      <app-ui-card eyebrow="Tree View" title="Structure Explorer" subtitle="Expand and collapse arrays and objects to inspect nested payloads.">
+        <div *ngIf="jsonTree.length; else emptyTree" class="tree-root">
+          <ng-container *ngTemplateOutlet="treeNodeTemplate; context: { $implicit: jsonTree, depth: 0 }"></ng-container>
         </div>
+      </app-ui-card>
+    </div>
+  </ng-container>
 
-        <div class="regex-inputs">
-          <div class="input-group">
-            <label class="input-label">🎯 Regex Pattern</label>
-            <input 
-              [(ngModel)]="regexPattern" 
-              placeholder="Enter regex pattern... e.g., \d+|\w+@\w+\.\w+"
-              class="input-field regex-input"
-              (input)="testRegex()">
-          </div>
-
-          <div class="input-group">
-            <label class="input-label">🏁 Flags</label>
-            <div class="flags-container">
-              <label class="flag-label">
-                <input type="checkbox" [(ngModel)]="flags.global" (change)="testRegex()"> g (global)
-              </label>
-              <label class="flag-label">
-                <input type="checkbox" [(ngModel)]="flags.ignoreCase" (change)="testRegex()"> i (ignore case)
-              </label>
-              <label class="flag-label">
-                <input type="checkbox" [(ngModel)]="flags.multiline" (change)="testRegex()"> m (multiline)
-              </label>
-            </div>
-          </div>
-
-          <div class="input-group">
-            <label class="input-label">📝 Test String</label>
-            <textarea 
-              [(ngModel)]="testString" 
-              placeholder="Enter text to test against your regex..."
-              class="textarea"
-              (input)="testRegex()"></textarea>
-          </div>
+  <ng-container *ngIf="activeTab === 'regex'">
+    <app-ui-card eyebrow="Pattern Testing" title="Regex Tester" subtitle="Validate expressions quickly with flag toggles and match inspection.">
+      <div class="stats-row regex-stats">
+        <div class="metric-card">
+          <strong>{{ regexMatches.length }}</strong>
+          <span>Matches</span>
         </div>
-
-        <div class="action-buttons">
-          <button 
-            (click)="testRegex()" 
-            class="button primary-btn"
-            [disabled]="!regexPattern.trim() || !testString.trim()">
-            🔍 Test Regex
-          </button>
-          <button 
-            (click)="clearRegex()" 
-            class="button secondary-btn">
-            🧹 Clear All
-          </button>
+        <div class="metric-card">
+          <strong>{{ testString.length }}</strong>
+          <span>Input length</span>
         </div>
-
-        <div *ngIf="regexError" class="error-message">
-          ❌ Regex Error: {{ regexError }}
-        </div>
-
-        <div *ngIf="regexMatches.length > 0" class="matches-section">
-          <h3 class="section-title">🎯 Matches ({{ regexMatches.length }})</h3>
-          <div class="matches-list">
-            <div *ngFor="let match of regexMatches; trackBy: trackByIndex" class="match-item">
-              <div class="match-content">{{ match.match }}</div>
-              <div class="match-info">
-                Position: {{ match.index }} | Length: {{ match.match.length }}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div *ngIf="regexPattern && testString && regexMatches.length === 0 && !regexError" class="no-matches">
-          <span class="emoji">🤷‍♂️</span>
-          <p>No matches found!</p>
+        <div class="metric-card" [class.valid]="regexValid" [class.invalid]="regexPattern && !regexValid">
+          <strong>{{ regexValid ? 'Valid' : (regexPattern ? 'Error' : 'Idle') }}</strong>
+          <span>Regex state</span>
         </div>
       </div>
+
+      <div class="regex-grid">
+        <label class="field-group">
+          <span>Pattern</span>
+          <input [(ngModel)]="regexPattern" placeholder="e.g. \\d+|[A-Z]{2,}" (input)="testRegex()">
+        </label>
+
+        <div class="field-group">
+          <span>Flags</span>
+          <div class="flag-row">
+            <label><input type="checkbox" [(ngModel)]="flags.global" (change)="testRegex()"> g</label>
+            <label><input type="checkbox" [(ngModel)]="flags.ignoreCase" (change)="testRegex()"> i</label>
+            <label><input type="checkbox" [(ngModel)]="flags.multiline" (change)="testRegex()"> m</label>
+          </div>
+        </div>
+      </div>
+
+      <label class="field-group textarea-group">
+        <span>Test String</span>
+        <textarea [(ngModel)]="testString" placeholder="Enter text to test..." (input)="testRegex()"></textarea>
+      </label>
+
+      <div class="action-row">
+        <app-ui-button variant="primary" icon="⌕" [disabled]="!regexPattern.trim() || !testString.trim()" (pressed)="testRegex()">
+          Test Regex
+        </app-ui-button>
+        <app-ui-button variant="secondary" icon="⌫" (pressed)="clearRegex()">
+          Clear
+        </app-ui-button>
+      </div>
+
+      <div *ngIf="regexError" class="error-banner">{{ regexError }}</div>
+
+      <div *ngIf="regexMatches.length; else noMatches" class="match-list">
+        <article *ngFor="let match of regexMatches; trackBy: trackByIndex" class="match-item">
+          <strong>{{ match.match }}</strong>
+          <span>Position {{ match.index }} • Length {{ match.match.length }}</span>
+        </article>
+      </div>
+    </app-ui-card>
+  </ng-container>
 </div>
+
+<ng-template #treeNodeTemplate let-nodes let-depth="depth">
+  <div *ngFor="let node of nodes" class="tree-node" [style.paddingLeft.px]="depth * 16">
+    <div class="tree-line">
+      <button
+        *ngIf="node.children.length"
+        type="button"
+        class="tree-toggle"
+        (click)="toggleNode(node.path)">
+        {{ isCollapsed(node.path) ? '+' : '−' }}
+      </button>
+      <span *ngIf="!node.children.length" class="tree-spacer"></span>
+      <span class="tree-key">{{ node.key }}</span>
+      <span class="tree-type">{{ node.type }}</span>
+      <span class="tree-summary">{{ node.summary }}</span>
+    </div>
+
+    <ng-container *ngIf="node.children.length && !isCollapsed(node.path)">
+      <ng-container *ngTemplateOutlet="treeNodeTemplate; context: { $implicit: node.children, depth: depth + 1 }"></ng-container>
+    </ng-container>
+  </div>
+</ng-template>
+
+<ng-template #emptyTree>
+  <div class="empty-state">
+    <div class="empty-icon">{{ '{ }' }}</div>
+    <p>Validate JSON to render the tree view.</p>
+  </div>
+</ng-template>
+
+<ng-template #noMatches>
+  <div class="empty-state compact">
+    <div class="empty-icon">.*</div>
+    <p>{{ noMatchMessage }}</p>
+  </div>
+</ng-template>

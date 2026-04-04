@@ -1,0 +1,15 @@
+<button
+  class="ui-button"
+  [attr.type]="type"
+  [disabled]="disabled"
+  [title]="title"
+  [class.block]="block"
+  [class.small]="small"
+  [class.primary]="variant === 'primary'"
+  [class.secondary]="variant === 'secondary'"
+  [class.ghost]="variant === 'ghost'"
+  [class.danger]="variant === 'danger'"
+  (click)="handleClick($event)">
+  <span *ngIf="icon" class="button-icon">{{ icon }}</span>
+  <span class="button-label"><ng-content></ng-content></span>
+</button>

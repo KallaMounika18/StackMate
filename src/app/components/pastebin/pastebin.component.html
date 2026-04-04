@@ -1,33 +1,99 @@
-<div class="pastebin-container">
-  <div class="stats-section">
-    <div class="stat-card"><h3>{{ pastes.length }}</h3><p>Code Snippets</p></div>
-    <div class="stat-card"><h3>{{ getTotalLines() }}</h3><p>Lines of Code</p></div>
-    <!-- <div class="stat-card"><h3>🔗</h3><p>Share Snippets</p></div> -->
-  </div>
-
-  <div class="pastebin-input">
-    <textarea [(ngModel)]="pasteText" placeholder="Paste your code, logs, or notes here..."></textarea>
-    <button (click)="addPaste()" class="btn btn-primary" [disabled]="!pasteText.trim()">💾 Save Snippet</button>
-    <small>💡 Ctrl + Enter to save</small>
-  </div>
-
-  <div *ngIf="pastes.length > 0" class="pastebin-list">
-    <div *ngFor="let paste of pastes;" class="pastebin-item">
-      <div>
-        <strong>💻 Snippet</strong>
-        <span *ngIf="paste.language" class="language-tag">({{ paste.language }})</span>
-        <div class="timestamp">🕒 {{ paste.timestamp }} • 📏 {{ paste.lines }} lines</div>
-        <pre>{{ paste.text }}</pre>
+<div class="pastebin-shell">
+  <app-ui-card eyebrow="Snippet Vault" title="PasteBin" subtitle="Save code, logs, and quick snippets with Monaco editing, sharing, and syntax-highlighted history.">
+    <div class="stats-row">
+      <div class="metric-card">
+        <strong>{{ pastes.length }}</strong>
+        <span>Saved snippets</span>
       </div>
-      <div class="actions">
-        <button (click)="copyToClipboard(paste.text)" class="btn-sm">📋 Copy</button>
-        <button (click)="deletePaste(paste.id)" class="btn-sm btn-danger">🗑️ Delete</button>
-        <!-- <button (click)="copyShareLink(paste.id)" class="btn-sm btn-outline"><a [routerLink]="['/share', paste.id]" class="share-link">🔗 Share</a></button> -->
+      <div class="metric-card">
+        <strong>{{ getTotalLines() }}</strong>
+        <span>Total lines</span>
+      </div>
+      <div class="metric-card">
+        <strong>{{ getDraftLineCount() }}</strong>
+        <span>Draft lines</span>
+      </div>
+      <div class="metric-card">
+        <strong>{{ selectedLanguage === 'auto' ? detectedLanguage : selectedLanguage }}</strong>
+        <span>Editor mode</span>
       </div>
     </div>
-  </div>
+  </app-ui-card>
 
-  <div *ngIf="pastes.length === 0" class="pastebin-empty">
-    <p>📭 No snippets yet. Paste your first one above!</p>
-  </div>
+  <app-ui-card eyebrow="Compose Snippet" title="New Paste" subtitle="Use Ctrl/Cmd + Enter to save instantly. Select a language or keep auto-detection enabled.">
+    <div class="toolbar-row">
+      <app-ui-input
+        [(ngModel)]="pasteTitle"
+        label="Snippet title"
+        placeholder="Migration query, incident log, build output..."
+        hint="Optional label for quick scanning."></app-ui-input>
+
+      <label class="language-select">
+        <span>Language</span>
+        <select [(ngModel)]="selectedLanguage" title="Choose syntax language">
+          <option *ngFor="let option of languageOptions" [value]="option.value">{{ option.label }}</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="status-row">
+      <span class="status-pill">{{ statusMessage }}</span>
+      <span class="status-meta">Detected: {{ detectedLanguage }} • {{ getDraftLineCount() }} lines</span>
+    </div>
+
+    <app-monaco-editor
+      [value]="pasteText"
+      [language]="selectedLanguage === 'auto' ? 'auto' : selectedLanguage"
+      [height]="340"
+      [minimap]="true"
+      placeholder="Paste code, logs, stack traces, or notes here..."
+      (valueChange)="onEditorChange($event)"
+      (languageDetected)="onEditorLanguageDetected($event)"></app-monaco-editor>
+
+    <div class="actions-row">
+      <app-ui-button variant="primary" icon="＋" [disabled]="!pasteText.trim()" title="Save snippet" (pressed)="addPaste()">
+        Save Snippet
+      </app-ui-button>
+      <app-ui-button variant="secondary" icon="⌫" [disabled]="!pasteText.trim() && !pasteTitle.trim()" title="Clear draft" (pressed)="clearInput()">
+        Clear Draft
+      </app-ui-button>
+    </div>
+  </app-ui-card>
+
+  <app-ui-card eyebrow="Snippet History" title="Saved Pastes" subtitle="Copy raw content, open share links, or review syntax-highlighted output.">
+    <div *ngIf="pastes.length; else emptyState" class="paste-list">
+      <article *ngFor="let paste of pastes; trackBy: trackPaste" class="paste-item">
+        <div class="paste-head">
+          <div>
+            <h3>{{ paste.title }}</h3>
+            <p>{{ paste.timestamp }} • {{ paste.lines }} lines • {{ paste.language }}</p>
+          </div>
+          <div class="paste-actions">
+            <app-ui-button variant="ghost" small icon="⎘" title="Copy snippet text" (pressed)="copyToClipboard(paste.text)">
+              Copy
+            </app-ui-button>
+            <app-ui-button variant="secondary" small icon="↗" title="Copy share link" (pressed)="copyShareLink(paste.id)">
+              Share
+            </app-ui-button>
+            <a class="inline-link" [routerLink]="['/share', paste.id]">Open</a>
+            <app-ui-button variant="danger" small icon="✕" title="Delete snippet" (pressed)="deletePaste(paste.id)">
+              Delete
+            </app-ui-button>
+          </div>
+        </div>
+
+        <div class="paste-preview">
+          <pre class="code-block"><code [innerHTML]="getHighlightedCode(paste)"></code></pre>
+        </div>
+      </article>
+    </div>
+  </app-ui-card>
 </div>
+
+<ng-template #emptyState>
+  <div class="empty-state">
+    <div class="empty-icon">&lt;/&gt;</div>
+    <h3>No snippets saved yet</h3>
+    <p>Paste your first code block above to build a shareable local snippet vault.</p>
+  </div>
+</ng-template>

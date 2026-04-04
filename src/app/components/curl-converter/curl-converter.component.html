@@ -1,6 +1,64 @@
-<div class="converter-container">
-  <h2>🔁 cURL to HTTP Converter</h2>
-  <textarea [(ngModel)]="curlCommand" placeholder="Paste your cURL command here"></textarea>
-  <button (click)="convert()">Convert</button>
-  <pre *ngIf="httpRequest">{{ httpRequest }}</pre>
+<div class="curl-shell">
+  <app-ui-card eyebrow="Request Builder" title="cURL to HTTP Converter" subtitle="Paste a cURL command and review the parsed request in a cleaner request-to-output flow.">
+    <div class="status-row">
+      <span class="status-pill">{{ statusMessage }}</span>
+      <div class="action-row">
+        <app-ui-button variant="secondary" small icon="⎘" [disabled]="!httpRequest" (pressed)="copyOutput()">Copy Output</app-ui-button>
+        <app-ui-button variant="danger" small icon="✕" [disabled]="!curlCommand && !httpRequest" (pressed)="clearAll()">Clear</app-ui-button>
+      </div>
+    </div>
+  </app-ui-card>
+
+  <div class="curl-grid">
+    <app-ui-card eyebrow="Input" title="cURL Command" subtitle="Auto parses while you paste or edit.">
+      <app-monaco-editor
+        [value]="curlCommand"
+        language="shell"
+        [height]="340"
+        placeholder="curl https://api.example.com -H 'Authorization: Bearer token'"
+        (valueChange)="onCurlChange($event)"></app-monaco-editor>
+      <div *ngIf="errorMessage" class="error-banner">{{ errorMessage }}</div>
+    </app-ui-card>
+
+    <app-ui-card eyebrow="Result" title="Parsed HTTP Request" subtitle="Structured output for review or copy.">
+      <div *ngIf="parsedRequest; else emptyState" class="result-stack">
+        <div class="summary-card">
+          <span class="method-pill">{{ parsedRequest.method }}</span>
+          <span class="url-text">{{ parsedRequest.url }}</span>
+        </div>
+
+        <div class="detail-card">
+          <h3>Headers</h3>
+          <div *ngIf="parsedRequest.headers.length; else noHeaders" class="headers-list">
+            <div *ngFor="let header of parsedRequest.headers" class="header-item">
+              <strong>{{ header.key }}</strong>
+              <span>{{ header.value }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-card" *ngIf="parsedRequest.body">
+          <h3>Body</h3>
+          <pre class="output-pre">{{ parsedRequest.body }}</pre>
+        </div>
+
+        <div class="detail-card">
+          <h3>HTTP Output</h3>
+          <pre class="output-pre">{{ httpRequest }}</pre>
+        </div>
+      </div>
+    </app-ui-card>
+  </div>
 </div>
+
+<ng-template #noHeaders>
+  <p class="empty-copy">No headers detected.</p>
+</ng-template>
+
+<ng-template #emptyState>
+  <div class="empty-state">
+    <div class="empty-icon">curl</div>
+    <h3>Nothing parsed yet</h3>
+    <p>Paste a valid cURL command to see the HTTP request structure on the right.</p>
+  </div>
+</ng-template>

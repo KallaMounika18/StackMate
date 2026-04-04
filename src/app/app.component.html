@@ -1,51 +1,55 @@
 <div class="app-container" [attr.data-theme]="themeService.currentTheme">
   <header class="app-header">
-    <div class="header-content">
-      <h1>{{ title }}</h1>
-      <div class="subtitle">{{ subtitle }}</div>
+    <a class="brand" routerLink="/code-comparator" title="Open StackMate workspace">
+      <div class="brand-mark">
+        <span class="brand-mark-core"></span>
+      </div>
+      <div class="brand-copy">
+        <h1>{{ title }}</h1>
+        <p>{{ subtitle }}</p>
+      </div>
+    </a>
+
+    <div class="header-actions">
+      <button
+        class="header-btn theme-toggle"
+        type="button"
+        (click)="toggleTheme()"
+        [title]="'Switch to ' + (themeService.currentTheme === 'dark' ? 'light' : 'dark') + ' theme'">
+        <span class="header-btn-icon">{{ themeService.currentTheme === 'dark' ? '☀' : '☾' }}</span>
+        <span>{{ themeService.currentTheme === 'dark' ? 'Light' : 'Dark' }}</span>
+      </button>
+
+      <!-- <a class="header-btn" [href]="githubUrl" target="_blank" rel="noreferrer" title="Open GitHub">
+        <span class="header-btn-icon">⌘</span>
+        <span>GitHub</span>
+      </a> -->
+
+      <!-- <button class="profile-pill" type="button" title="StackMate profile">
+        <span class="profile-avatar">SM</span>
+        <span class="profile-meta">
+          <strong>Workspace</strong>
+          <small>Developer Mode</small>
+        </span>
+      </button> -->
     </div>
-<!--     
-    <button class="theme-toggle" (click)="toggleTheme()" 
-            [title]="'Switch to ' + (themeService.currentTheme === 'dark' ? 'light' : 'dark') + ' theme'">
-      <span class="theme-icon">{{ themeService.currentTheme === 'dark' ? '☀️' : '🌙' }}</span>
-      <span class="theme-text">{{ themeService.currentTheme === 'dark' ? 'Light Mode' : 'Dark Mode' }}</span>
-    </button> -->
   </header>
 
   <div class="main-content">
     <nav class="sidebar">
-      <div class="nav-title">✨ Navigation</div>
-      <a routerLink="/pastebin" routerLinkActive="active" class="nav-link">
-        <span class="emoji">📝</span>
-        <span>PasteBin</span>
-      </a>
-      <a routerLink="/notes" routerLinkActive="active" class="nav-link">
-        <span class="emoji">📒</span>
-        <span>Notes</span>
-      </a>
-      <a routerLink="/code-comparator" routerLinkActive="active" class="nav-link">
-        <span class="emoji">🖊️</span>
-        <span>Code Comparator</span>
-      </a>
-      <a routerLink="/json-regex-tools" routerLinkActive="active" class="nav-link">
-        <span class="emoji">🧹</span>
-        <span>Json & Regex</span>
-      </a>
-      <a routerLink="/timestamp-uuid-tools" routerLinkActive="active" class="nav-link">
-        <span class="emoji">🕒</span>
-        <span>Timestamp & UUID</span>
-      </a>
-      <a routerLink="/api-tester" routerLinkActive="active" class="nav-link">
-        <span class="emoji">🌐</span>
-        <span>API Tester</span>
-      </a>
-      <a routerLink="/curl-converter" routerLinkActive="active" class="nav-link">
-        <span class="emoji">🔁</span>
-        <span>cURL Converter</span>
-      </a>
-      <a routerLink="/markdown-previewer" routerLinkActive="active" class="nav-link">
-        <span class="emoji">📜</span>
-        <span>Markdown Previewer</span>
+      <div class="sidebar-head">
+        <div class="nav-title">Workspace</div>
+        <div class="nav-caption">Fast access to every developer utility.</div>
+      </div>
+
+      <a
+        *ngFor="let item of navItems"
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="nav-link">
+        <span class="nav-icon">{{ item.icon }}</span>
+        <span class="nav-label">{{ item.label }}</span>
       </a>
     </nav>
 

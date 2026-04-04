@@ -1,11 +1,18 @@
-<div class="shared-snippet" *ngIf="snippet; else notFound">
-  <h2>📤 Shared Code Snippet</h2>
-  <p><strong>Language:</strong> {{ snippet.language }}</p>
-  <p><strong>Lines:</strong> {{ snippet.lines }}</p>
-  <p><strong>Timestamp:</strong> {{ snippet.timestamp }}</p>
-  <pre>{{ snippet.text }}</pre>
+<div *ngIf="snippet; else notFound" class="share-shell">
+  <app-ui-card eyebrow="Shared Snippet" title="{{ snippet.title || 'Snippet' }}" subtitle="Opened from local StackMate snippet storage.">
+    <div class="meta-row">
+      <span>{{ snippet.language }}</span>
+      <span>{{ snippet.lines }} lines</span>
+      <span>{{ snippet.timestamp }}</span>
+    </div>
+    <pre class="snippet-body">{{ snippet.text }}</pre>
+  </app-ui-card>
 </div>
 
 <ng-template #notFound>
-  <p>🚫 Snippet not found. It might have been deleted or doesn't exist.</p>
+  <div class="share-shell">
+    <app-ui-card eyebrow="Shared Snippet" title="Snippet Not Found" subtitle="The local share entry is missing or has been deleted.">
+      <p class="missing-copy">Save the snippet again in PasteBin and regenerate the share link.</p>
+    </app-ui-card>
+  </div>
 </ng-template>

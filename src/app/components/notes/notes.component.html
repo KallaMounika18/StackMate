@@ -1,73 +1,98 @@
-<!-- notes.component.html -->
-<div class="container">
-  <h2 class="title">
-    <span>📒</span>
-    Smart Notes
-  </h2>
+<div class="notes-shell">
+  <app-ui-card eyebrow="Knowledge Base" title="Smart Notes" subtitle="Capture drafts with autosave, tags, and a cleaner developer writing flow.">
+    <div class="notes-stats">
+      <div class="stat-chip">
+        <strong>{{ notes.length }}</strong>
+        <span>Stored notes</span>
+      </div>
+      <div class="stat-chip">
+        <strong>{{ getTotalCharacters() | number }}</strong>
+        <span>Characters archived</span>
+      </div>
+      <div class="stat-chip">
+        <strong>{{ getDraftWordCount() }}</strong>
+        <span>Draft words</span>
+      </div>
+      <div class="stat-chip">
+        <strong>{{ getReadingTime() }} min</strong>
+        <span>Reading time</span>
+      </div>
+    </div>
+  </app-ui-card>
 
-  <div class="stats-bar">
-    <div class="stat">
-      <div class="stat-number">{{ notes.length }}</div>
-      <div class="stat-label">Total Notes</div>
-    </div>
-    <div class="stat">
-      <div class="stat-number">{{ getTotalCharacters() | number }}</div>
-      <div class="stat-label">Characters</div>
-    </div>
-    <div class="stat">
-      <div class="stat-number">💡</div>
-      <div class="stat-label">Ideas Captured</div>
-    </div>
-  </div>
+  <app-ui-card eyebrow="Draft Composer" title="Current Note" subtitle="Drafts autosave locally while you type. Use Ctrl/Cmd + Enter to store a note.">
+    <div class="draft-grid">
+      <app-ui-input
+        [(ngModel)]="noteTitle"
+        label="Title"
+        placeholder="Architecture review, bug notes, release checklist..."
+        hint="Short, searchable title."
+        (ngModelChange)="onDraftChange()"></app-ui-input>
 
-  <div class="input-section">
-    <input 
-      [(ngModel)]="noteTitle" 
-      placeholder="✨ What's on your mind?" 
-      class="input-field"
-      #titleInput>
-    
-    <textarea 
-      [(ngModel)]="noteText" 
-      placeholder="Write your brilliant thoughts here... 🧠💭" 
-      class="textarea"
-      #textInput></textarea>
-    
-    <button 
-      (click)="addNote()" 
-      class="button"
-      [disabled]="!noteTitle.trim() && !noteText.trim()">
-      🎯 Capture Idea
-    </button>
-    
-    <div class="keyboard-hint">
-      <small>💡 Pro tip: Press <kbd>Ctrl + Enter</kbd> to quickly add notes!</small>
+      <app-ui-input
+        [(ngModel)]="noteTags"
+        label="Tags"
+        placeholder="frontend, api, backlog"
+        hint="Comma-separated tags."
+        (ngModelChange)="onDraftChange()"></app-ui-input>
     </div>
-  </div>
 
-  <ul class="paste-list" *ngIf="notes.length > 0">
-    <li *ngFor="let note of notes;" class="paste-item">
-      <div>
-        <strong>📌 {{ note.title }}</strong>
-        <div class="timestamp">
-          ⏰ {{ note.timestamp }}
+    <div class="save-row">
+      <span class="save-indicator" [class.saving]="isSaving">{{ saveIndicator }}</span>
+      <span class="draft-language">Detected editor mode: {{ detectedLanguage }}</span>
+    </div>
+
+    <app-monaco-editor
+      [value]="noteText"
+      language="markdown"
+      [height]="320"
+      [minimap]="true"
+      placeholder="Write your note, meeting minutes, or scratchpad here..."
+      (valueChange)="noteText = $event; onDraftChange()"
+      (languageDetected)="onEditorLanguageDetected($event)"></app-monaco-editor>
+
+    <div class="draft-actions">
+      <app-ui-button variant="primary" icon="＋" [disabled]="!noteTitle.trim() && !noteText.trim()" title="Save note" (pressed)="addNote()">
+        Save Note
+      </app-ui-button>
+      <app-ui-button variant="secondary" icon="⌫" [disabled]="!noteTitle && !noteText && !noteTags" title="Clear draft" (pressed)="clearInputs()">
+        Clear Draft
+      </app-ui-button>
+    </div>
+  </app-ui-card>
+
+  <app-ui-card eyebrow="Saved Library" title="Recent Notes" subtitle="Stored locally with tags, timestamps, and quick copy actions.">
+    <div *ngIf="notes.length; else emptyState" class="notes-list">
+      <article *ngFor="let note of notes; trackBy: trackNote" class="note-item">
+        <div class="note-head">
+          <div>
+            <h3>{{ note.title }}</h3>
+            <p>{{ note.timestamp }} • {{ note.wordCount }} words</p>
+          </div>
+          <div class="note-actions">
+            <app-ui-button variant="ghost" small icon="⎘" title="Copy note content" (pressed)="copyNoteText(note)">
+              Copy
+            </app-ui-button>
+            <app-ui-button variant="danger" small icon="✕" title="Delete note" (pressed)="deleteNote(note.id)">
+              Delete
+            </app-ui-button>
+          </div>
         </div>
-        <div class="note-text">{{ note.text }}</div>
-      </div>
-      <div class="actions">
-        <button 
-          (click)="deleteNote(note.id)" 
-          class="delete-btn"
-          title="Delete note">
-          🗑️ Delete
-        </button>
-      </div>
-    </li>
-  </ul>
 
-  <div *ngIf="notes.length === 0" class="empty-state">
-    <span class="emoji">🤔</span>
-    <h3>No notes yet!</h3>
-    <p>Start capturing your brilliant ideas above</p>
-  </div>
+        <div *ngIf="note.tags.length" class="tag-row">
+          <span *ngFor="let tag of note.tags" class="tag-pill">#{{ tag }}</span>
+        </div>
+
+        <pre class="note-body">{{ note.text }}</pre>
+      </article>
+    </div>
+  </app-ui-card>
 </div>
+
+<ng-template #emptyState>
+  <div class="empty-state">
+    <div class="empty-icon">✎</div>
+    <h3>No notes stored yet</h3>
+    <p>Your drafts autosave locally. Save one note to start building a searchable knowledge base.</p>
+  </div>
+</ng-template>

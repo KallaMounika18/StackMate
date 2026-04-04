@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 
 interface Paste {
   id: string;
+  title?: string;
   text: string;
   timestamp: string;
   lines: number;
@@ -22,7 +23,7 @@ export class SharePasteComponent implements OnInit {
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       const id = params['id'];
-      const saved = localStorage.getItem('devnotes_pastes');
+      const saved = localStorage.getItem('stackmate_pastes');
 
       if (id && saved) {
         const pastes: Paste[] = JSON.parse(saved);

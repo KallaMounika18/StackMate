@@ -1,0 +1,30 @@
+.monaco-shell {
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--surface-strong);
+  box-shadow: inset 0 0 0 1px var(--outline-soft);
+}
+
+.editor-host {
+  width: 100%;
+  height: 100%;
+}
+
+.editor-host.hidden {
+  display: none;
+}
+
+.fallback-editor {
+  width: 100%;
+  height: 100%;
+  min-height: 180px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  padding: 16px;
+  font-family: var(--font-mono);
+  line-height: 1.6;
+  resize: vertical;
+  box-shadow: none;
+}
