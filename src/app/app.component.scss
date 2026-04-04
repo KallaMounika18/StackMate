@@ -28,23 +28,16 @@
   position: relative;
   display: grid;
   place-items: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 16px;
-  background:
-    radial-gradient(circle at 30% 30%, rgba(56, 189, 248, 0.92), transparent 52%),
-    linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(139, 92, 246, 0.65));
-  box-shadow:
-    0 0 0 1px rgba(148, 163, 184, 0.12),
-    0 12px 35px rgba(56, 189, 248, 0.2);
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
 }
 
-.brand-mark-core {
-  width: 18px;
-  height: 18px;
-  border-radius: 6px;
-  background: rgba(226, 232, 240, 0.95);
-  box-shadow: 0 0 24px rgba(226, 232, 240, 0.28);
+.brand-logo {
+  display: block;
+  width: 52px;
+  height: 52px;
+  filter: drop-shadow(0 12px 24px color-mix(in srgb, var(--primary) 24%, transparent));
 }
 
 .brand-copy h1 {
