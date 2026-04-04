@@ -1,0 +1,127 @@
+<div class="profile-container">
+  <div class="profile-card">
+    <div class="profile-header">
+      <div class="avatar-section">
+        <div class="avatar-container">
+          <span class="avatar-initials">{{ getUserInitials() }}</span>
+        </div>
+        <div class="user-info">
+          <h2>{{ currentUser?.firstName }} {{ currentUser?.lastName }}</h2>
+          <p class="username">@{{ currentUser?.username }}</p>
+        </div>
+      </div>
+      <button class="edit-button" (click)="toggleEdit()" *ngIf="!isEditing">
+        <span class="edit-icon">✏️</span>
+        <span>Edit Profile</span>
+      </button>
+    </div>
+
+    <div class="profile-content">
+      <div class="message-container">
+        <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+        <div class="success-message" *ngIf="successMessage">{{ successMessage }}</div>
+      </div>
+
+      <div class="view-mode" *ngIf="!isEditing">
+        <div class="info-section">
+          <div class="info-item">
+            <div class="info-label">First Name</div>
+            <div class="info-value">{{ currentUser?.firstName }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Last Name</div>
+            <div class="info-value">{{ currentUser?.lastName }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Username</div>
+            <div class="info-value">{{ currentUser?.username }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Email</div>
+            <div class="info-value">{{ currentUser?.email }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="edit-mode" *ngIf="isEditing">
+        <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label for="firstName">First Name</label>
+            <input 
+              type="text" 
+              id="firstName" 
+              formControlName="firstName"
+              class="form-control"
+              placeholder="Enter your first name"
+            >
+            <div class="error-message" *ngIf="profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched">
+              First name is required
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input 
+              type="text" 
+              id="lastName" 
+              formControlName="lastName"
+              class="form-control"
+              placeholder="Enter your last name"
+            >
+            <div class="error-message" *ngIf="profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched">
+              Last name is required
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input 
+              type="text" 
+              id="username" 
+              formControlName="username"
+              class="form-control disabled"
+              readonly
+            >
+            <div class="field-hint">Username cannot be changed</div>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input 
+              type="email" 
+              id="email" 
+              formControlName="email"
+              class="form-control"
+              placeholder="Enter your email"
+            >
+            <div class="error-message" *ngIf="profileForm.get('email')?.errors?.required && profileForm.get('email')?.touched">
+              Email is required
+            </div>
+            <div class="error-message" *ngIf="profileForm.get('email')?.errors?.email && profileForm.get('email')?.touched">
+              Please enter a valid email address
+            </div>
+          </div>
+
+          <div class="button-container">
+            <button type="button" class="cancel-button" (click)="toggleEdit()">Cancel</button>
+            <button 
+              type="submit" 
+              class="save-button" 
+              [disabled]="profileForm.invalid || isLoading"
+            >
+              <span *ngIf="!isLoading">Save Changes</span>
+              <span *ngIf="isLoading" class="loading-spinner">⏳</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="profile-actions">
+        <a routerLink="/change-password" class="action-link">
+          <span class="action-icon">🔑</span>
+          <span>Change Password</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

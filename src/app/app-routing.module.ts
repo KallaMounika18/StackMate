@@ -11,8 +11,10 @@ import { CurlConverterComponent } from './components/curl-converter/curl-convert
 import { MarkdownPreviewerComponent } from './components/markdown-previewer/markdown-previewer.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
-import { GuestGuard } from './services/guest.guard';
+import { ProfileComponent } from './components/profile/profile.component';
+import { ChangePasswordComponent } from './components/change-password/change-password.component';
 import { AuthGuard } from './services/auth.guard';
+// import { GuestGuard } from './services/guest.guard';
 
 const routes: Routes = [
   {
@@ -48,6 +50,19 @@ const routes: Routes = [
     component: RegisterComponent,
     // canActivate: [AuthGuard]
   },
+  
+  // User profile routes (require authentication)
+  { 
+    path: 'profile', 
+    component: ProfileComponent,
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: 'change-password', 
+    component: ChangePasswordComponent,
+    canActivate: [AuthGuard]
+  },
+  
   // { 
   //   path: '**', 
   //   redirectTo: '/404' 

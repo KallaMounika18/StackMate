@@ -4,49 +4,106 @@
       <h1>{{ title }}</h1>
       <div class="subtitle">{{ subtitle }}</div>
     </div>
-<!--     
-    <button class="theme-toggle" (click)="toggleTheme()" 
-            [title]="'Switch to ' + (themeService.currentTheme === 'dark' ? 'light' : 'dark') + ' theme'">
-      <span class="theme-icon">{{ themeService.currentTheme === 'dark' ? '☀️' : '🌙' }}</span>
-      <span class="theme-text">{{ themeService.currentTheme === 'dark' ? 'Light Mode' : 'Dark Mode' }}</span>
-    </button> -->
+    <div class="header-actions">
+      <button class="theme-toggle" (click)="toggleTheme()" 
+              [title]="'Switch to ' + (themeService.currentTheme === 'dark' ? 'light' : 'dark') + ' theme'">
+        <span class="theme-icon">{{ themeService.currentTheme === 'dark' ? '☀️' : '🌙' }}</span>
+        <span class="theme-text">{{ themeService.currentTheme === 'dark' ? 'Light Mode' : 'Dark Mode' }}</span>
+      </button>
+      
+      <!-- User Profile Icon and Dropdown -->
+      <div class="user-profile" *ngIf="authService.isLoggedIn()">
+        <button class="profile-button" (click)="toggleProfileMenu()" [attr.aria-expanded]="isProfileMenuOpen">
+          <div class="avatar-container">
+            <span class="avatar-initials">{{ getUserInitials() }}</span>
+          </div>
+          <span class="username">{{ getUserDisplayName() }}</span>
+          <span class="dropdown-icon">▼</span>
+        </button>
+        
+        <div class="profile-dropdown" [class.show]="isProfileMenuOpen">
+          <div class="dropdown-header">
+            <div class="avatar-container large">
+              <span class="avatar-initials">{{ getUserInitials() }}</span>
+            </div>
+            <div class="user-info">
+              <span class="full-name">{{ getUserFullName() }}</span>
+              <span class="email">{{ getUserEmail() }}</span>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" routerLink="/profile">
+            <span class="item-icon">👤</span>
+            <span>My Profile</span>
+          </a>
+          <a class="dropdown-item" routerLink="/change-password">
+            <span class="item-icon">🔑</span>
+            <span>Change Password</span>
+          </a>
+          <a class="dropdown-item" routerLink="/settings">
+            <span class="item-icon">⚙️</span>
+            <span>Settings</span>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item logout" (click)="logout()">
+            <span class="item-icon">🚪</span>
+            <span>Logout</span>
+          </a>
+        </div>
+      </div>
+      
+      <!-- Login Button when not logged in -->
+      <a *ngIf="!authService.isLoggedIn()" routerLink="/login" class="login-button">
+        <span class="login-icon">🔑</span>
+        <span class="login-text">Login</span>
+      </a>
+    </div>
   </header>
 
-  <div class="main-content">
-    <nav class="sidebar">
-      <div class="nav-title">✨ Navigation</div>
-      <a routerLink="/pastebin" routerLinkActive="active" class="nav-link">
-        <span class="emoji">📝</span>
-        <span>PasteBin</span>
-      </a>
-      <a routerLink="/notes" routerLinkActive="active" class="nav-link">
-        <span class="emoji">📒</span>
-        <span>Notes</span>
-      </a>
-      <a routerLink="/code-comparator" routerLinkActive="active" class="nav-link">
-        <span class="emoji">🖊️</span>
-        <span>Code Comparator</span>
-      </a>
-      <a routerLink="/json-regex-tools" routerLinkActive="active" class="nav-link">
-        <span class="emoji">🧹</span>
-        <span>Json & Regex</span>
-      </a>
-      <a routerLink="/timestamp-uuid-tools" routerLinkActive="active" class="nav-link">
-        <span class="emoji">🕒</span>
-        <span>Timestamp & UUID</span>
-      </a>
-      <a routerLink="/api-tester" routerLinkActive="active" class="nav-link">
-        <span class="emoji">🌐</span>
-        <span>API Tester</span>
-      </a>
-      <a routerLink="/curl-converter" routerLinkActive="active" class="nav-link">
-        <span class="emoji">🔁</span>
-        <span>cURL Converter</span>
-      </a>
-      <a routerLink="/markdown-previewer" routerLinkActive="active" class="nav-link">
-        <span class="emoji">📜</span>
-        <span>Markdown Previewer</span>
-      </a>
+  <div class="main-content" [class.sidebar-collapsed]="sidebarCollapsed">
+    <button class="sidebar-toggle" (click)="toggleSidebar()" [attr.aria-label]="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'">
+      <span class="toggle-icon">{{ sidebarCollapsed ? '→' : '←' }}</span>
+    </button>
+    
+    <nav class="sidebar" [class.collapsed]="sidebarCollapsed">
+      <div class="sidebar-header">
+        <div class="nav-title">✨ Navigation</div>
+      </div>
+      
+      <div class="nav-links">
+        <a routerLink="/pastebin" routerLinkActive="active" class="nav-link" [attr.title]="sidebarCollapsed ? 'PasteBin' : ''">
+          <span class="emoji">📝</span>
+          <span class="link-text">PasteBin</span>
+        </a>
+        <a routerLink="/notes" routerLinkActive="active" class="nav-link" [attr.title]="sidebarCollapsed ? 'Notes' : ''">
+          <span class="emoji">📒</span>
+          <span class="link-text">Notes</span>
+        </a>
+        <a routerLink="/code-comparator" routerLinkActive="active" class="nav-link" [attr.title]="sidebarCollapsed ? 'Code Comparator' : ''">
+          <span class="emoji">🖊️</span>
+          <span class="link-text">Code Comparator</span>
+        </a>
+        <a routerLink="/json-regex-tools" routerLinkActive="active" class="nav-link" [attr.title]="sidebarCollapsed ? 'Json & Regex' : ''">
+          <span class="emoji">🧹</span>
+          <span class="link-text">Json & Regex</span>
+        </a>
+        <a routerLink="/timestamp-uuid-tools" routerLinkActive="active" class="nav-link" [attr.title]="sidebarCollapsed ? 'Timestamp & UUID' : ''">
+          <span class="emoji">🕒</span>
+          <span class="link-text">Timestamp & UUID</span>
+        </a>
+        <a routerLink="/api-tester" routerLinkActive="active" class="nav-link" [attr.title]="sidebarCollapsed ? 'API Tester' : ''">
+          <span class="emoji">🌐</span>
+          <span class="link-text">API Tester</span>
+        </a>
+        <a routerLink="/curl-converter" routerLinkActive="active" class="nav-link" [attr.title]="sidebarCollapsed ? 'cURL Converter' : ''">
+          <span class="emoji">🔁</span>
+          <span class="link-text">cURL Converter</span>
+        </a>
+        <a routerLink="/markdown-previewer" routerLinkActive="active" class="nav-link" [attr.title]="sidebarCollapsed ? 'Markdown Previewer' : ''">
+          <span class="emoji">📜</span>
+          <span class="link-text">Markdown Previewer</span>
+        </a>
+      </div>
     </nav>
 
     <section class="content">

@@ -25,41 +25,48 @@
 
   <div class="input-section">
     <div class="code-panel">
-      <h3 class="panel-title">📄 Original Code</h3>
-      <textarea [(ngModel)]="leftCode" class="code-textarea" placeholder="Paste your original code here..."></textarea>
+      <h3 class="panel-title"><span>📄</span> Original Code</h3>
+      <textarea [(ngModel)]="leftCode" class="code-textarea" placeholder="Paste your original code here..." spellcheck="false"></textarea>
+      <div class="resize-handle"></div>
     </div>
     <div class="code-panel">
-      <h3 class="panel-title">✨ Modified Code</h3>
-      <textarea [(ngModel)]="rightCode" class="code-textarea" placeholder="Paste your modified code here..."></textarea>
+      <h3 class="panel-title"><span>✨</span> Modified Code</h3>
+      <textarea [(ngModel)]="rightCode" class="code-textarea" placeholder="Paste your modified code here..." spellcheck="false"></textarea>
+      <div class="resize-handle"></div>
     </div>
   </div>
 
   <div class="action-bar">
     <button class="btn btn-primary" (click)="compareCode()" [disabled]="!canCompare">
-      🔍 Compare Code
+      <span>🔍</span> Compare Code
     </button>
-    <button class="btn btn-secondary" (click)="clearAll()">
-      🧹 Clear All
+    <button class="btn btn-secondary" (click)="clearAll()" [disabled]="!hasAnyCode">
+      <span>🧹</span> Clear All
     </button>
     <button class="btn btn-secondary" (click)="swapCode()" [disabled]="!hasAnyCode">
-      🔄 Swap Sides
+      <span>🔄</span> Swap Sides
+    </button>
+    <button class="btn btn-secondary" (click)="toggleFullscreen()">
+      <span>{{ isFullscreen ? '⬇️' : '⬆️' }}</span> {{ isFullscreen ? 'Exit Fullscreen' : 'Fullscreen Mode' }}
     </button>
   </div>
 
   <div *ngIf="showResults" class="diff-container">
     <div class="diff-header">
-      <h3 class="diff-title">🎯 Comparison Results</h3>
-      <button class="btn btn-primary collapse-toggle" (click)="toggleCollapse()">
-        {{ hideUnchanged ? 'Show All Lines' : 'Hide Unchanged Lines' }}
-      </button>
+      <h3 class="diff-title"><span>🎯</span> Comparison Results</h3>
+      <div class="diff-actions">
+        <button class="btn btn-secondary collapse-toggle" (click)="toggleCollapse()">
+          <span>{{ hideUnchanged ? '👁️' : '👁️‍🗨️' }}</span> {{ hideUnchanged ? 'Show All Lines' : 'Hide Unchanged Lines' }}
+        </button>
+      </div>
     </div>
     <div class="diff-viewer">
       <div class="diff-side">
-        <h4>📄 Original</h4>
+        <h4><span>📄</span> Original</h4>
         <div [innerHTML]="leftDiffHtml"></div>
       </div>
       <div class="diff-side">
-        <h4>✨ Modified</h4>
+        <h4><span>✨</span> Modified</h4>
         <div [innerHTML]="rightDiffHtml"></div>
       </div>
     </div>
@@ -69,5 +76,6 @@
     <span class="emoji">🔍</span>
     <h3>Ready to compare!</h3>
     <p>Add code to both sections to see the differences</p>
+    <p class="tip">Pro tip: Use <kbd>Tab</kbd> for indentation and <kbd>Ctrl+Z</kbd> for undo</p>
   </div>
 </div>

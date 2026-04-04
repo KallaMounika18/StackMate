@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms'; // <-- Add this
-import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http'; // <-- Add this
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms'; 
+import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http'; 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { PastebinComponent } from './components/pastebin/pastebin.component';
@@ -21,6 +21,9 @@ import { AuthService } from './services/auth.service';
 import { AuthGuard } from './services/auth.guard';
 import { GuestGuard } from './services/guest.guard';
 import { AuthInterceptor } from './services/auth.interceptor';
+import { ProfileComponent } from './components/profile/profile.component';
+import { ChangePasswordComponent } from './components/change-password/change-password.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -35,15 +38,21 @@ import { AuthInterceptor } from './services/auth.interceptor';
     MarkdownPreviewerComponent,
     LoginComponent,
     RegisterComponent,
-    
+    ProfileComponent,
+    ChangePasswordComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
+    ReactiveFormsModule,
     HttpClientModule,
     AppRoutingModule,
-    RouterModule.forRoot([]),
+    RouterModule,
     MarkdownModule.forRoot({ loader: HttpClient })
+  ],
+  exports: [
+    RouterModule,
+    ReactiveFormsModule
   ],
   providers: [AuthService,
     AuthGuard,
@@ -55,6 +64,7 @@ import { AuthInterceptor } from './services/auth.interceptor';
     }
 
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AppModule { }
