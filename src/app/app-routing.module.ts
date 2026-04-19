@@ -11,6 +11,10 @@ import { CurlConverterComponent } from './components/curl-converter/curl-convert
 import { MarkdownPreviewerComponent } from './components/markdown-previewer/markdown-previewer.component';
 
 const routes: Routes = [
+  {
+    path: 'whiteboard',
+    loadChildren: () => import('./modules/whiteboard/whiteboard.module').then((module) => module.WhiteboardModule)
+  },
   { path: 'pastebin', component: PastebinComponent },
   { path: 'notes', component: NotesComponent },
   { path: 'code-comparator', component: CodeComparatorComponent },

@@ -1,0 +1,231 @@
+<div class="whiteboard-shell" [class.board-shelf-open]="isBoardShelfOpen">
+  <input
+    #importInput
+    type="file"
+    accept=".json,.excalidraw,.excalidraw.json"
+    hidden
+    (change)="onImportSelected($event)">
+
+  <header class="whiteboard-header">
+    <div class="header-group header-group-primary">
+      <button
+        type="button"
+        class="shell-btn shell-btn-primary"
+        [class.active]="isBoardShelfOpen"
+        [title]="isBoardShelfOpen ? 'Hide recent boards' : 'Show recent boards'"
+        (click)="toggleBoardShelf()">
+        <span class="shell-btn-icon">{{ isBoardShelfOpen ? '×' : '☰' }}</span>
+        <span>{{ isBoardShelfOpen ? 'Hide Boards' : 'Boards' }}</span>
+      </button>
+
+      <label class="board-name-inline">
+        <span class="visually-hidden">Board name</span>
+        <input
+          [value]="draftBoardName"
+          placeholder="Sprint planning flow, incident timeline..."
+          title="Rename the current board"
+          (input)="onBoardNameInput($any($event.target).value)"
+          (blur)="commitBoardName()">
+      </label>
+    </div>
+
+    <div class="header-group header-group-status">
+      <span class="status-pill" [class.saving]="saveTone === 'saving'" [class.warning]="saveTone === 'warning'">
+        {{ saveIndicator }}
+      </span>
+    </div>
+
+    <div class="header-group header-group-secondary">
+      <button type="button" class="shell-btn" title="Create a fresh board" (click)="createBoard()">
+        <span class="shell-btn-icon">+</span>
+        <span>New</span>
+      </button>
+
+      <button
+        type="button"
+        class="shell-btn"
+        title="Duplicate the active board"
+        [disabled]="!currentBoard"
+        (click)="duplicateBoard()">
+        <span class="shell-btn-icon">DUP</span>
+        <span>Duplicate</span>
+      </button>
+
+      <button
+        type="button"
+        class="shell-btn"
+        title="Import an Excalidraw JSON file"
+        [disabled]="isImporting"
+        (click)="triggerImport()">
+        <span class="shell-btn-icon">IN</span>
+        <span>Import</span>
+      </button>
+    </div>
+  </header>
+
+  <section class="whiteboard-stage">
+    <aside class="board-shelf" [class.open]="isBoardShelfOpen">
+      <div class="board-shelf-head">
+        <div>
+          <div class="board-shelf-eyebrow">Recent Boards</div>
+          <h2>{{ workspace.boards.length }} stored locally</h2>
+          <p>Jump between saved diagrams without shrinking the canvas.</p>
+        </div>
+
+        <button
+          type="button"
+          class="shell-btn shell-btn-icon-only"
+          title="Close boards shelf"
+          (click)="closeBoardShelf()">
+          ×
+        </button>
+      </div>
+
+      <div class="board-shelf-actions">
+        <button type="button" class="shelf-action" title="Create a fresh board" (click)="createBoard()">
+          <span>＋</span>
+          <span>New Board</span>
+        </button>
+
+        <button
+          type="button"
+          class="shelf-action"
+          title="Duplicate the active board"
+          [disabled]="!currentBoard"
+          (click)="duplicateBoard()">
+          <span>⧉</span>
+          <span>Duplicate</span>
+        </button>
+
+        <button
+          type="button"
+          class="shelf-action"
+          title="Import an Excalidraw JSON file"
+          [disabled]="isImporting"
+          (click)="triggerImport()">
+          <span>⇪</span>
+          <span>Import JSON</span>
+        </button>
+      </div>
+
+      <div class="board-list">
+        <button
+          *ngFor="let board of recentBoards; trackBy: trackBoard"
+          type="button"
+          class="board-item"
+          [class.active]="board.id === currentBoardId"
+          [title]="'Open ' + board.name"
+          (click)="selectBoard(board.id)">
+          <div class="board-item-head">
+            <strong>{{ board.name }}</strong>
+            <span class="board-count">{{ board.elementCount }} items</span>
+          </div>
+
+          <div class="board-item-meta">
+            <span>{{ formatTimestamp(board.updatedAt) }}</span>
+            <span>{{ labelForTool(board.activeTool) }}</span>
+          </div>
+        </button>
+      </div>
+    </aside>
+
+    <div class="canvas-stage">
+      <button
+        *ngIf="!isBoardShelfOpen"
+        type="button"
+        class="canvas-shelf-toggle"
+        title="Open recent boards"
+        (click)="toggleBoardShelf()">
+        <span>☰</span>
+        <span>Boards</span>
+      </button>
+
+      <div class="floating-bar floating-bar-tools">
+        <button
+          *ngFor="let tool of toolButtons"
+          type="button"
+          class="tool-chip"
+          [class.active]="selectedTool === tool.id"
+          [title]="tool.title"
+          (click)="selectTool(tool.id)">
+          <span class="tool-icon">{{ tool.icon }}</span>
+          <span class="tool-label">{{ tool.label }}</span>
+        </button>
+
+        <span class="floating-divider"></span>
+
+        <button type="button" class="tool-chip tool-chip-utility" title="Undo the last board change" (click)="undo()">
+          <span class="tool-icon">↶</span>
+          <span class="tool-label">Undo</span>
+        </button>
+
+        <button type="button" class="tool-chip tool-chip-utility" title="Redo the last reverted change" (click)="redo()">
+          <span class="tool-icon">↷</span>
+          <span class="tool-label">Redo</span>
+        </button>
+      </div>
+
+      <div class="floating-bar floating-bar-actions">
+        <button type="button" class="tool-chip tool-chip-action" title="Save the current board now" (click)="saveBoard()">
+          <span class="tool-icon">SV</span>
+          <span class="tool-label">Save</span>
+        </button>
+
+        <button type="button" class="tool-chip tool-chip-action" title="Export a PNG snapshot" (click)="exportPng()">
+          <span class="tool-icon">PNG</span>
+          <span class="tool-label">PNG</span>
+        </button>
+
+        <button type="button" class="tool-chip tool-chip-action" title="Export the current design JSON" (click)="exportJson()">
+          <span class="tool-icon">JS</span>
+          <span class="tool-label">JSON</span>
+        </button>
+
+        <button type="button" class="tool-chip tool-chip-danger" title="Clear the current canvas" (click)="clearCanvas()">
+          <span class="tool-icon">CLR</span>
+          <span class="tool-label">Clear</span>
+        </button>
+      </div>
+
+      <div class="floating-bar floating-bar-zoom">
+        <span class="zoom-pill">{{ currentBoard?.zoom || 100 }}%</span>
+
+        <button type="button" class="tool-chip tool-chip-utility" title="Zoom in" (click)="zoomIn()">
+          <span class="tool-icon">+</span>
+          <span class="tool-label">Zoom In</span>
+        </button>
+
+        <button type="button" class="tool-chip tool-chip-utility" title="Zoom out" (click)="zoomOut()">
+          <span class="tool-icon">-</span>
+          <span class="tool-label">Zoom Out</span>
+        </button>
+
+        <button type="button" class="tool-chip tool-chip-utility" title="Fit content inside the viewport" (click)="zoomToFit()">
+          <span class="tool-icon">FIT</span>
+          <span class="tool-label">Fit</span>
+        </button>
+      </div>
+
+      <div class="canvas-shell">
+        <iframe
+          #whiteboardFrame
+          class="whiteboard-frame"
+          [src]="frameUrl"
+          title="StackMate whiteboard canvas">
+        </iframe>
+
+        <div *ngIf="isCanvasLoading" class="canvas-overlay loading-state">
+          <div class="overlay-badge">Loading Canvas</div>
+          <h3>Preparing the Excalidraw surface</h3>
+          <p>The React host is initializing inside the iframe bridge.</p>
+        </div>
+
+        <div *ngIf="emptyStateVisible" class="canvas-overlay empty-state">
+          <div class="overlay-badge">Empty Board</div>
+          <h3>Start drawing immediately</h3>
+          <p>Use the floating tools to sketch flows, annotate ideas, and pan around without leaving the canvas.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

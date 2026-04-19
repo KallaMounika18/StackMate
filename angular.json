@@ -30,6 +30,26 @@
                 "glob": "**/*",
                 "input": "node_modules/monaco-editor/min/vs",
                 "output": "assets/monaco/vs"
+              },
+              {
+                "glob": "react.production.min.js",
+                "input": "node_modules/react/umd",
+                "output": "assets/react"
+              },
+              {
+                "glob": "react-dom.production.min.js",
+                "input": "node_modules/react-dom/umd",
+                "output": "assets/react"
+              },
+              {
+                "glob": "excalidraw.production.min.js",
+                "input": "node_modules/@excalidraw/excalidraw/dist",
+                "output": "assets/excalidraw"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/@excalidraw/excalidraw/dist/excalidraw-assets",
+                "output": "assets/excalidraw/excalidraw-assets"
               }
             ],
             "styles": [
@@ -103,6 +123,26 @@
                 "glob": "**/*",
                 "input": "node_modules/monaco-editor/min/vs",
                 "output": "assets/monaco/vs"
+              },
+              {
+                "glob": "react.production.min.js",
+                "input": "node_modules/react/umd",
+                "output": "assets/react"
+              },
+              {
+                "glob": "react-dom.production.min.js",
+                "input": "node_modules/react-dom/umd",
+                "output": "assets/react"
+              },
+              {
+                "glob": "excalidraw.production.min.js",
+                "input": "node_modules/@excalidraw/excalidraw/dist",
+                "output": "assets/excalidraw"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/@excalidraw/excalidraw/dist/excalidraw-assets",
+                "output": "assets/excalidraw/excalidraw-assets"
               }
             ],
             "styles": [
